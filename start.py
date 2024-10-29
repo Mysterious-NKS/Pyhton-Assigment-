@@ -3,8 +3,14 @@ import sqlite3
 CART = []
 production_log = []
 equipment_log = []
-#HEllO Can you see me?
-fyh
+
+#HEllO Can you see 
+#ZY
+
+sfsfsfgdfgdgfd
+
+uiyuggg
+
 
 #1.0.0 系统read user_data.txt
 def main():
