@@ -6,8 +6,9 @@ equipment_log = []
 
 #HEllO Can you see 
 #ZY
+# 123456t
+#test3
 
-123456
 
 #1.0.0 系统read user_data.txt
 def main():
