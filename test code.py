@@ -830,8 +830,31 @@ def manage_user_accounts():
 
 
 def add_user():
-    pass
+    print("---- Add User ----")
 
+    # input details of user
+    username = input("Enter new username: ").strip()  #.strip is to remove unnecessary space
+    password = input("Enter password: ").strip() # The variable is grey because it is a local variable.
+    user_type = input("Enter user type (member/manager/cher/cashier): ").strip().lower()# the .lower is to prevent it from being too case-sensitive.
+
+    #make sure the manager doesn't type random stuff for user_type
+    if user_type not in ["member","manager","chef","cashier"]:
+        print("Invalid user type. Please enter one of the following: member, manager, chef, cashier.")
+        return #return will take the manager back to the manage user accounts section.
+
+    #Connecting to the Database
+    conn = sqlite3.connect("users.db") # connects to the users.db database
+    cursor = conn.cursor() #Creates an object that can make SQL commands on the database
+
+    #making sure the username doesn't conflict with an already existing username.
+    cursor.execute("SELECT username FROM users WHERE username = ?", (username,)) #make a sql statement to see if the username already exist.
+    if cursor.fetchone(): #take the first matching record.
+        print("This username has been taken, please try again.")
+    else:
+        cursor.execute("INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)",(username, password, user_type))
+        conn.commit() #save the changes to the database
+        print(f"User '{username}' added successfully as '{user_type}'.")
+    conn.close() # close the connection to the database
 
 def remove_user():
     username = input("Enter the username to remove: ")
