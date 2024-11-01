@@ -857,21 +857,40 @@ def add_user():
     conn.close() # close the connection to the database
 
 def remove_user():
-    username = input("Enter the username to remove: ")
+    print("---- Remove User ----")
+
+    #Find the user to be removed.
+    username = input("Enter the username to remove: ").strip()
+
+    #Connect to database
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT username FROM users WHERE username = ?', (username,))
-    user = cursor.fetchone()
+    #Finding the username in the database and deleting it.
+    try: #this is for error handling
+        cursor.execute('SELECT username, user_type FROM users WHERE username = ?', (username,)) #This will retrieve the username and user_type
+        user = cursor.fetchone() #user will become the first matching record.
 
-    if user:
-        cursor.execute('DELETE FROM users WHERE username = ?', (username,))
-        conn.commit()
-        print(f"User '{username}' removed successfully!")
-    else:
-        print(f"User '{username}' not found.")
-
-    conn.close()
+    #Confirmation for deletion
+        if user: #Meaning there is a matching result for the username.
+            print(f"Found user: Username = {user[0]}, Type = {user[1]}") #Display the info of the user.
+            confirm = input(f"Are you sure you want to delete the user '{username}'? (y/n): ").strip().lower()
+        #DELETION
+            if confirm == 'y':
+                cursor.execute('DELETE FROM users WHERE username = ?', (username,))
+                conn.commit()
+                print(f"User '{username}' has been removed.")
+                #Made a log for all deletion
+                with open('deletion_log.txt', 'a') as log_file:
+                    log_file.write(f"Deleted user: {username}, Type: {user[1]}\n")
+            else:
+                print("Deletion canceled.")
+        else:
+            print(f"User '{username}' not found.")
+    except sqlite3.Error as e: #Will continue the program even if there is a error
+        print(f"An error occurred while accessing the database: {e}")
+    finally: #Will disconnect the database regardless of what happens.
+        conn.close()
 
 
 def view_users():
