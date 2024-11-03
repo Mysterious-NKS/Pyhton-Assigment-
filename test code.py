@@ -654,7 +654,7 @@ def view_menu():
 
 
 # 1.2.6 查看库存
-def check_inv():
+def checking_inv():
     print("==== Inventory Check ====")
     print("Enter the ingredient to proceed. ")
     check_ing = input("Ingredient: ")
@@ -748,7 +748,7 @@ while True:
     elif choice == "4":
         view_menu()
     elif choice == "5":
-        check_inv()
+        checking_inv()
     elif choice == "6":
         rec_production()
     elif choice == "7":
