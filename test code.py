@@ -975,7 +975,30 @@ def oversee_order_details():
 
 
 def view_current_orders():
-    pass
+    print("---- Current Orders ----")
+
+    # Connect to the database
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Retrieve orders from the orders table.
+    try:
+        cursor.execute("SELECT username, item_name, price, quantity, table_number FROM orders")
+        orders = cursor.fetchall()
+        #Display the orders
+        if orders:
+            #The headers and alignment.
+            print(f"{'Username':<15} {'Item Name':<10} {'Price':<10} {'Quantity':<10} {'Table Number':<15}")
+            print("-" * 70)
+            #The orders
+            for order in orders:
+                print(f"{order[0]:<15} {order[1]:<10} {order[2]:<10.2f} {order[3]:<10} {order[4]:<15}")
+        else:
+            print("No current orders available.")
+    except sqlite3.Error as e:
+        print(f"An error occurred while retrieving orders: {e}")
+    finally:
+        conn.close()
 
 
 def view_order_history():
