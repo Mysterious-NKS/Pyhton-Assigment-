@@ -656,15 +656,52 @@ def view_menu():
 # 1.2.6 查看库存
 def checking_inv():
     print("==== Inventory Check ====")
-    print("Enter the ingredient to proceed. ")
-    check_ing = input("Ingredient: ")
-    if check_ing in food_inv:
-        quantity = food_inv[check_ing]["quantity"]
-        unit = food_inv[check_ing]["unit"]
-        print(f"= {check_ing.capitalize()} =")
-        print(f"Quantity: {quantity}   Weight: {unit}")
+    choice = input("Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
+
+    if choice == 'specific':
+        check_ing = input("Enter the ingredient: ").strip().lower()
+        if check_ing in food_inv:
+            quantity = food_inv[check_ing]["quantity"]
+            unit = food_inv[check_ing]["unit"]
+
+            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+            print(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |")
+            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+
+            if len(unit) > 50:
+                wrapped_unit = textwrap.fill(unit, width=50)
+                wrapped_lines = wrapped_unit.split('\n')
+                print(f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |")
+                for line in wrapped_lines[1:]:
+                    print(f"| {' ':<20} | {' ':<10} | {line:<50} |")
+            else:
+                print(f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |")
+
+            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+        else:
+            print(f"'{check_ing.capitalize()}' not available in the inventory.")
+
+    elif choice == 'all':
+        print("==== Inventory List ====")
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+        print(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |")
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+
+        for ingredient, details in food_inv.items():
+            unit = details['unit']
+            if len(unit) > 50:
+                wrapped_unit = textwrap.fill(unit, width=50)
+                wrapped_lines = wrapped_unit.split('\n')
+                print(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |")
+                for line in wrapped_lines[1:]:
+                    print(f"| {' ':<20} | {' ':<10} | {line:<50} |")
+            else:
+                print(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |")
+
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+
     else:
-        print(f"'{check_ing.capitalize()}' not available in the inventory.")
+        print("Invalid choice. Please enter 'specific' or 'whole'.")
 
 
 # 1.2.7 记录生产
