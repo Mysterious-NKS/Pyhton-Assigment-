@@ -725,7 +725,7 @@ def view_equip_i():
 
 # 1.2.11 厨师设置
 def chef_settings():
- while True:
+while True:
     print("==== Chef Settings ====")
     print("1. Add Food/Drink")
     print("2. Update Food/Drink")
