@@ -1163,6 +1163,16 @@ def cashier_menu():
         else:
             print("Invalid choice, please try again.")
 
+def product_display_menu():
+    print("\n==== Product Display ====")
+    view_menu()
+    input("\nPress Enter to return to the Cashier Menu.")
+
+def manage_discount_menu():
+    print("\n==== Manage Discounts ====")
+    manage_discount()
+    input("\nPress Enter to return to the Cashier Menu.")
+
 def transaction_menu():
     print("\n==== Transaction Completion ====")
     generate_receipt(order)
