@@ -577,6 +577,9 @@ def add_recipe():
         print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
         print("")
 
+        save_menu_to_file(food_list, drink_list)  # Save the updated menu
+        print(f"Menu saved to file after adding '{food}'.")
+
 # 1.2.3 删除菜品
 def remove_recipe():
     print("==== Delete Food and Drinks ====")
@@ -592,6 +595,8 @@ def remove_recipe():
             if item['name'] == name_q:
                 item_list.remove(item)
                 print(f"'{name_q}' along with its price and recipe has been deleted from {label} list!")
+                save_menu_to_file(food_list, drink_list)  # Save the updated menu
+                print(f"Menu saved to file after removing '{name_q}'.")
                 return
 
     print("Recipe not found.")
@@ -611,21 +616,8 @@ def update_menu():
                 print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<50} |")
                 print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
 
-                wrapped_name = textwrap.wrap(item['name'], width=20)
-                wrapped_price = textwrap.wrap(f"{item['price']:.2f}", width=10)
-                wrapped_recipe = textwrap.wrap(item['recipe'], width=50)
-
-                print(f"| {wrapped_name[0]:<20} | {wrapped_price[0]:<10} | {wrapped_recipe[0]:<50} |")
-
-                for line in wrapped_name[1:]:
-                    print(f"| {line:<20} | {'':<10} | {'':<60} |")
-
-                for line in wrapped_price[1:]:
-                    print(f"| {'':<20} | {line:<10} | {'':<60} |")
-
-                for line in wrapped_recipe[1:]:
-                    print(f"| {'':<20} | {'':<10} | {line:<60} |")
-
+                # Display current details
+                print(f"| {item['name']:<20} | {item['price']:<10.2f} | {item['recipe']:<50} |")
                 print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
 
                 new_name = input("\nEnter new name (press Enter to skip): ")
@@ -642,11 +634,12 @@ def update_menu():
                 if new_recipe:
                     item['recipe'] = new_recipe
 
-                print(f"\n{label.capitalize()} '{update_txt}' updated successfully!\n")
+                print(f"\n{label.capitalize()} '{update_txt}' updated successfully!")
+                save_menu_to_file(food_list, drink_list)  # Save the updated menu
+                print(f"Menu saved to file after updating '{update_txt}'.")
                 return
 
     print(f"'{update_txt}' not found in the food or drink lists.\n")
-
 
 
 # 1.2.5 查看菜品
