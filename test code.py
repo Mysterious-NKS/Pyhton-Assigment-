@@ -4,9 +4,10 @@ CART = []
 production_log = []
 equipment_log = []
 
-
-# HEllO Can you see
-# ZY234
+# menu 开data list 和加减食物和水update名字or价格
+# feedback
+# track order status complete and spending
+# 123
 
 
 # 1.0.0 系统read user_data.txt
@@ -15,8 +16,7 @@ def main():
         print("\nselect an operation:")
         print("1. register")
         print("2. login")
-        print("3. logout")
-        choice = input("Please enter an option (1-3): ")
+        choice = input("Please enter an option (1-2): ")
         if choice == '1':
             register()
         elif choice == '2':
