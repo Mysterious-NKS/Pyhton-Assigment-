@@ -1,0 +1,11 @@
+==== Food Menu ====
+Name: Burger, Price: 15, Recipe: Delicious beef burgers
+Name: Pizza, Price: 20, Recipe: Pepperoni
+Name: Salad, Price: 10, Recipe: Healthy green salad
+Name: Sushi, Price: 25, Recipe: Fresh sushi platter
+Name: Tacos, Price: 12, Recipe: Spicy Mexican tacos
+Name: Shit, Price: 50.0, Recipe: created by god
+
+==== Drink Menu ====
+Name: Tea, Price: 4, Recipe: A warm tea from hometown
+Name: Water, Price: 1.5, Recipe: Average fresh water
