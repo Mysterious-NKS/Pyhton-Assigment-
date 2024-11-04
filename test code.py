@@ -46,12 +46,23 @@ def setup_database():
     # Create orders table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
         item_name TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
-        FOREIGN KEY (username) REFERENCES users(username)
+        table_number INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    ''')
+
+    # Create feedback table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS feedback (
+        feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER NOT NULL,
+        feedback TEXT NOT NULL,
+        FOREIGN KEY (order_id) REFERENCES orders(order_id)
     )
     ''')
 
@@ -175,7 +186,9 @@ def order_menu(username):
         print("6. Provide feedback")
         print("7. Cancel bill and log out")
         print("8. Log out back to main menu")
-        choice = input("Please select an action (1-8): ")
+        print("9. Delete all orders")
+        print("10. Delete order by ID")
+        choice = input("Please select an action (1-10): ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -189,9 +202,17 @@ def order_menu(username):
         elif choice == '6':
             provide_feedback()
         elif choice == '7':
-            log_out()
+            log_out(username)
         elif choice == '8':
             main()
+        elif choice == '9':
+            delete_all_orders()
+        elif choice == '10':
+            order_id = input("Please enter the order ID to delete: ")
+            if order_id.isdigit():
+                delete_order_by_id(int(order_id))
+            else:
+                print("Invalid order ID, please try again.")
         else:
             print("Invalid choice, please try again.")
 
@@ -292,28 +313,28 @@ def checkout(username):
         return
 
     view_cart()
-    table_number = input("Please enter your table number: ")
-    if not table_number.isdigit():
-        print("Invalid table number.")
-        return
 
     confirm = input("Confirm the order?(y/n): ")
     if confirm.lower() == 'y':
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
+        # 获取 user_id
+        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        user_id = cursor.fetchone()[0]
+
         for item in CART:
             # Save to database
             cursor.execute('''
-            INSERT INTO orders (username, item_name, price, quantity, table_number)
-            VALUES (?, ?, ?, ?, ?)
-            ''', (username, item['name'], item['price'], item['quantity'], int(table_number)))
-            print(f"Table {table_number}: {item['name']} - RM{item['price']} x {item['quantity']}\n")
+            INSERT INTO orders (user_id, item_name, price, quantity)
+            VALUES (?, ?, ?, ?)
+            ''', (user_id, item['name'], item['price'], item['quantity']))
+            print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}\n")
 
         conn.commit()
         conn.close()
 
-        print(f"The order has been submitted for table number {table_number}, thank you for your purchase!")
+        print("The order has been submitted, thank you for your purchase!")
         CART.clear()  # Clear the shopping cart
     else:
         print("The order has not been submitted.")
@@ -344,31 +365,54 @@ def track_order_status(username):
 # 1.1.9 提供反馈
 def provide_feedback():
     print("=== Provide Feedback ===")
-    table_number = input("Enter your table number: ")
-    if not table_number.isdigit():
-        print("Invalid table number.")
+    order_id = input("Enter your order ID: ")
+    if not order_id.isdigit():
+        print("Invalid order ID.")
         return
+
+    feedback = input("Please enter your feedback: ")
 
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
     cursor.execute('''
-    SELECT id FROM orders WHERE table_number = ?
-    ''', (int(table_number),))
+    INSERT INTO feedback (order_id, feedback)
+    VALUES (?, ?)
+    ''', (int(order_id), feedback))
 
-    orders = cursor.fetchall()
-
-    if not orders:
-        print("No orders found for this table number.")
-        conn.close()
-        return
-
-    feedback = input("Please enter your feedback: ")
-    with open('feedback.txt', 'a', encoding='utf-8') as feedback_file:
-        feedback_file.write(f"Table {table_number}: {feedback}\n")
+    conn.commit()
+    conn.close()
 
     print("Thank you for your feedback!")
-    conn.close()
+
+
+# 删除 orders 表中的所有记录
+def delete_all_orders():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('DELETE FROM orders')
+        conn.commit()
+        print("All orders have been deleted.")
+    except sqlite3.Error as e:
+        print(f"An error occurred while deleting orders: {e}")
+    finally:
+        conn.close()
+
+# 根据条件删除特定订单
+def delete_order_by_id(order_id):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute('DELETE FROM orders WHERE order_id = ?', (order_id,))
+        conn.commit()
+        print(f"Order with ID {order_id} has been deleted.")
+    except sqlite3.Error as e:
+        print(f"An error occurred while deleting the order: {e}")
+    finally:
+        conn.close()
 
 
 # 1.1.10 突然不想吃了取消订单
