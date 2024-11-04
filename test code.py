@@ -199,7 +199,7 @@ def order_menu(username):
 # 1.1.2 登录后系统加载菜单
 def load_menu():
     menu = []
-    for item in food_drink_list:
+    for item in food_list:
         menu.append({
             'name': item['name'],
             'price': item['price'],
