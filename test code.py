@@ -33,6 +33,21 @@ def setup_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
+    # Drop the existing orders table if it exists
+    cursor.execute('DROP TABLE IF EXISTS orders')
+
+    # Create a new orders table without the table_number column
+    cursor.execute('''
+    CREATE TABLE orders (
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        item_name TEXT NOT NULL,
+        price REAL NOT NULL,
+        quantity INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    ''')
+
     # Create users table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
@@ -40,19 +55,6 @@ def setup_database():
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         user_type TEXT NOT NULL
-    )
-    ''')
-
-    # Create orders table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS orders (
-        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        item_name TEXT NOT NULL,
-        price REAL NOT NULL,
-        quantity INTEGER NOT NULL,
-        table_number INTEGER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
     )
     ''')
 
@@ -1074,16 +1076,16 @@ def view_current_orders():
 
     # Retrieve orders from the orders table.
     try:
-        cursor.execute("SELECT username, item_name, price, quantity, table_number FROM orders")
+        cursor.execute("SELECT username, item_name, price, quantity FROM orders")
         orders = cursor.fetchall()
         #Display the orders
         if orders:
             #The headers and alignment.
-            print(f"{'Username':<15} {'Item Name':<10} {'Price':<10} {'Quantity':<10} {'Table Number':<15}")
+            print(f"{'Username':<15} {'Item Name':<10} {'Price':<10} {'Quantity':<10}")
             print("-" * 70)
             #The orders
             for order in orders:
-                print(f"{order[0]:<15} {order[1]:<10} {order[2]:<10.2f} {order[3]:<10} {order[4]:<15}")
+                print(f"{order[0]:<15} {order[1]:<10} {order[2]:<10.2f} {order[3]:<10}")
         else:
             print("No current orders available.")
     except sqlite3.Error as e:
