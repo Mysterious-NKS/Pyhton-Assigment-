@@ -12,6 +12,7 @@ equipment_log = []
 
 # 1.0.0 系统read user_data.txt
 def main():
+    setup_database()  # 确保数据库和表已创建
     while True:
         print("\nselect an operation:")
         print("1. register")
@@ -24,6 +25,7 @@ def main():
             break
         else:
             print("Invalid choice, please try again.")
+
 
 
 # 1.0.1 创建数据库
@@ -59,37 +61,32 @@ def setup_database():
 
 # 1.0.2 系统执行sql语句
 def execute_query(query, params=(), fetch=False):
+    connection = None
     try:
-        # 连接到SQLite数据库
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-
-        # 执行SQL查询
+        connection = sqlite3.connect('users.db')  # 确保路径正确
+        cursor = connection.cursor()
         cursor.execute(query, params)
-
-        # 如果fetch为True，获取查询结果
         if fetch:
             result = cursor.fetchall()
-        else:
-            # 否则提交更改
-            conn.commit()
-            result = None
+            print(f"Query result: {result}")  # 调试信息
+            return result
+        connection.commit()
     except sqlite3.Error as e:
-        # 捕获数据库错误并打印错误信息
         print(f"Database error: {e}")
-        result = None
     finally:
-        # 关闭数据库连接
-        conn.close()
-
-    # 返回查询结果
-    return result
+        if connection:
+            connection.close()
+    return None
 
 
 # 1.0.3 读取用户信息
 def load_users():
     query = "SELECT username, password, user_type FROM users"
-    return execute_query(query, fetch=True)
+    result = execute_query(query, fetch=True)
+    if result is None:
+        print("Failed to load users from the database.")
+        return []
+    return result
 
 
 # 1.0.4 保存用户信息
@@ -153,13 +150,21 @@ def member_login():
         password = input("Please enter a password: ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
+        
+        # 调试信息
+        print(f"Loaded users: {user_dict}")
+
         user = user_dict.get(username)
-        if user and user[1] == password and user[2] == 'member':
-            print("Login successful!")
-            order_menu(username)
-            break
+        if user:
+            print(f"Found user: {user}")
+            if user[1] == password and user[2] == 'member':
+                print("Login successful!")
+                order_menu(username)
+                break
+            else:
+                print("Password is incorrect or you are not a member.")
         else:
-            print("Username or password is incorrect, or you are not a member. Please try again.")
+            print("Username not found.")
 
 
 # 1.1.1   登入了可以干嘛
@@ -1202,5 +1207,9 @@ def generate_sales_report():
     input("\nPress Enter to return to the Cashier Menu.")
 
 
+
+
+
 if __name__ == '__main__':
+    setup_database()  # 确保数据库和表已创建
     main()
