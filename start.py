@@ -4,7 +4,6 @@ CART = []
 production_log = []
 equipment_log = []
 
-# menu 开data list 和加减食物和水update名字or价格
 # feedback
 # track order status complete and spending
 # 123
