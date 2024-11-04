@@ -443,7 +443,18 @@ def chef_login():
             break
         else:
             print("Username or password is incorrect, or you are not a chef. Please try again.")
+            
+def save_menu_to_file(food_list, drink_list, filename="menu.txt"):
+    with open(filename, 'w') as file:
+        file.write("==== Food Menu ====\n")
+        for food in food_list:
+            file.write(f"Name: {food['name']}, Price: {food['price']}, Recipe: {food['recipe']}\n")
 
+        file.write("\n==== Drink Menu ====\n")
+        for drink in drink_list:
+            file.write(f"Name: {drink['name']}, Price: {drink['price']}, Recipe: {drink['recipe']}\n")
+
+    print(f"Menu saved to {filename}")
 
 # 1.2.1 厨师菜单
 food_list = [
