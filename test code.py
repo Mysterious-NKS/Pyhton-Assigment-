@@ -68,7 +68,6 @@ def execute_query(query, params=(), fetch=False):
         cursor.execute(query, params)
         if fetch:
             result = cursor.fetchall()
-            print(f"Query result: {result}")  # 调试信息
             return result
         connection.commit()
     except sqlite3.Error as e:
@@ -150,9 +149,6 @@ def member_login():
         password = input("Please enter a password: ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
-        
-        # 调试信息
-        print(f"Loaded users: {user_dict}")
 
         user = user_dict.get(username)
         if user:
