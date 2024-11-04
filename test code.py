@@ -762,43 +762,43 @@ def view_equip_i():
 
 # 1.2.11 厨师设置
 def chef_settings():
-while True:
-    print("==== Chef Settings ====")
-    print("1. Add Food/Drink")
-    print("2. Update Food/Drink")
-    print("3. Delete Food/Drink")
-    print("4. View Menu")
-    print("5. Check Inventory")
-    print("6. Record Production")
-    print("7. View production")
-    print("8. Report Equipment Issue")
-    print("9. View Equipment Issues")
-    print("0. Exit")
+    while True:
+        print("==== Chef Settings ====")
+        print("1. Add Food/Drink")
+        print("2. Update Food/Drink")
+        print("3. Delete Food/Drink")
+        print("4. View Menu")
+        print("5. Check Inventory")
+        print("6. Record Production")
+        print("7. View production")
+        print("8. Report Equipment Issue")
+        print("9. View Equipment Issues")
+        print("0. Exit")
 
-    choice = input("Choose an option: ")
-    if choice == "1":
-        add_recipe()
-    elif choice == "2":
-        update_menu()
-    elif choice == "3":
-        remove_recipe()
-    elif choice == "4":
-        view_menu()
-    elif choice == "5":
-        checking_inv()
-    elif choice == "6":
-        rec_production()
-    elif choice == "7":
-        view_production()
-    elif choice == '8':
-        report_equip_i()
-    elif choice == '9':
-        view_equip_i()
-    elif choice == "0":
-        print("Exiting...")
-        break
-    else:
-        print("Invalid choice, please try again.")
+        choice = input("Choose an option: ")
+        if choice == "1":
+            add_recipe()
+        elif choice == "2":
+            update_menu()
+        elif choice == "3":
+            remove_recipe()
+        elif choice == "4":
+            view_menu()
+        elif choice == "5":
+            checking_inv()
+        elif choice == "6":
+            rec_production()
+        elif choice == "7":
+            view_production()
+        elif choice == '8':
+            report_equip_i()
+        elif choice == '9':
+            view_equip_i()
+        elif choice == "0":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice, please try again.")
 
 
 # -------------------------------MANAGER--------------------------------------------#
