@@ -17,11 +17,14 @@ def main():
         print("\nselect an operation:")
         print("1. register")
         print("2. login")
-        choice = input("Please enter an option (1-2): ")
+        print("3. exit")
+        choice = input("Please enter an option (1-3): ")
         if choice == '1':
             register()
         elif choice == '2':
             login()
+        elif choice == '3':
+            print("Exiting the program.")
             break
         else:
             print("Invalid choice, please try again.")
@@ -186,11 +189,8 @@ def order_menu(username):
         print("4. Check out")
         print("5. Track order status")
         print("6. Provide feedback")
-        print("7. Cancel bill and log out")
-        print("8. Log out")
-        print("9. Delete all orders")
-        print("10. Delete order by ID")
-        choice = input("Please select an action (1-10): ")
+        print("7. Log out")
+        choice = input("Please select an action (1-7): ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -204,17 +204,7 @@ def order_menu(username):
         elif choice == '6':
             provide_feedback()
         elif choice == '7':
-            cancel_bill_and_log_out(username)
-        elif choice == '8':
-            main()
-        elif choice == '9':
-            delete_all_orders()
-        elif choice == '10':
-            order_id = input("Please enter the order ID to delete: ")
-            if order_id.isdigit():
-                delete_order_by_id(int(order_id))
-            else:
-                print("Invalid order ID, please try again.")
+            log_out(username)
         else:
             print("Invalid choice, please try again.")
 
@@ -350,23 +340,7 @@ def checkout(username):
 # 1.1.8 查看订单状态
 def track_order_status(username):
     print("=== Order Tracking ===")
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    cursor.execute('''
-    SELECT item_name, price, quantity FROM orders WHERE username = ?
-    ''', (username,))
-
-    orders = cursor.fetchall()
-
-    if orders:
-        print("Here are your current orders:")
-        for order in orders:
-            print(f"{order[0]} - RM{order[1]} x {order[2]}")
-    else:
-        print("You have no current orders.")
-
-    conn.close()
+    pass
 
 
 # 1.1.9 提供反馈
@@ -393,46 +367,9 @@ def provide_feedback():
     print("Thank you for your feedback!")
 
 
-# 删除 orders 表中的所有记录
-def delete_all_orders():
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute('DELETE FROM orders')
-        conn.commit()
-        print("All orders have been deleted.")
-    except sqlite3.Error as e:
-        print(f"An error occurred while deleting orders: {e}")
-    finally:
-        conn.close()
-
-# 根据条件删除特定订单
-def delete_order_by_id(order_id):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute('DELETE FROM orders WHERE order_id = ?', (order_id,))
-        conn.commit()
-        print(f"Order with ID {order_id} has been deleted.")
-    except sqlite3.Error as e:
-        print(f"An error occurred while deleting the order: {e}")
-    finally:
-        conn.close()
-
-
-# 1.1.10 突然不想吃了取消订单
-def cancel_bill_and_log_out(username):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    cursor.execute('DELETE FROM orders WHERE username = ?', (username,))
-    conn.commit()
-    conn.close()
-
-    CART.clear()
-    print("You have been logged out, the shopping cart has been cleared, and your orders have been cancelled.")
+def log_out(username):
+    print(f"Logging out {username}...")
+    print("Logged out successfully.")
     main()
 
 
