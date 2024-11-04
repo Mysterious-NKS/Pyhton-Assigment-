@@ -1134,9 +1134,64 @@ def cashier_login():
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
             print("Login successful!")
+            display_menu()
             break
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
+
+def cashier_menu():
+    while True:
+        print("\n==== Cashier Menu ====")
+        print("1. Product Display")
+        print("2. Manage Discounts")
+        print("3. Complete Transaction")
+        print("4. Generate Sales Report")
+        print("5. Exit")
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            product_display_menu()
+        elif choice == "2":
+            manage_discount_menu()
+        elif choice == "3":
+            transaction_menu()
+        elif choice == "4":
+            generate_sales_report()
+        elif choice == "0":
+            print("Exiting Cashier Menu...")
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+def transaction_menu():
+    print("\n==== Transaction Completion ====")
+    generate_receipt(order)
+
+def generate_receipt(order):
+    print("\n--- Receipt ---")
+    total = 0
+    for item, quantity in order.items():
+        if item in menu:
+            price = menu[item]["price"]
+            item_total = price * quantity
+            if item in discounts:
+                discount = discounts[item]
+                item_total *= (1 - discount / 100)
+                print(f"{item} x{quantity} - ${price} each - {discount}% off - Subtotal: ${round(item_total, 2)}")
+            else:
+                print(f"{item} x{quantity} - ${price} each - Subtotal: ${round(item_total, 2)}")
+            total += item_total
+        else:
+            print(f"Item '{item}' not found in the menu.")
+    
+    print(f"\nTotal: ${round(total, 2)}")
+    print("\nThank you for your order!\n")
+
+
+def generate_sales_report():
+    print("\n==== Sales Report ====")
+    generate_sales_report()  # Call the report function
+    input("\nPress Enter to return to the Cashier Menu.")
 
 
 if __name__ == '__main__':
