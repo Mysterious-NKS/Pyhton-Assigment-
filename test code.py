@@ -1125,7 +1125,19 @@ def delete_feedback():
 
 # -------------------------------CASHIER--------------------------------------------#
 def cashier_login():
-    pass
+    print("\n==== Cashier Login ====")
+    while True:
+        username = input("Please enter a username: ")
+        password = input("Please enter a password: ")
+        users = load_users()
+        user_dict = {user[0]: user for user in users}
+        user = user_dict.get(username)
+        if user and user[1] == password and user[2] == 'cashier':
+            print("Login successful!")
+            cashier_settings()
+            break
+        else:
+            print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
 
 if __name__ == '__main__':
