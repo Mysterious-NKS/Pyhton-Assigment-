@@ -187,7 +187,7 @@ def order_menu(username):
         print("5. Track order status")
         print("6. Provide feedback")
         print("7. Cancel bill and log out")
-        print("8. Log out back to main menu")
+        print("8. Log out")
         print("9. Delete all orders")
         print("10. Delete order by ID")
         choice = input("Please select an action (1-10): ")
@@ -204,7 +204,7 @@ def order_menu(username):
         elif choice == '6':
             provide_feedback()
         elif choice == '7':
-            log_out(username)
+            cancel_bill_and_log_out(username)
         elif choice == '8':
             main()
         elif choice == '9':
@@ -318,25 +318,30 @@ def checkout(username):
 
     confirm = input("Confirm the order?(y/n): ")
     if confirm.lower() == 'y':
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
+        try:
+            conn = sqlite3.connect('users.db')
+            cursor = conn.cursor()
 
-        # 获取 user_id
-        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
-        user_id = cursor.fetchone()[0]
+            # 获取 user_id
+            cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+            user_id = cursor.fetchone()[0]
 
-        for item in CART:
-            # Save to database
-            cursor.execute('''
-            INSERT INTO orders (user_id, item_name, price, quantity)
-            VALUES (?, ?, ?, ?)
-            ''', (user_id, item['name'], item['price'], item['quantity']))
-            print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}\n")
+            for item in CART:
+                # Save to database
+                cursor.execute('''
+                INSERT INTO orders (user_id, item_name, price, quantity)
+                VALUES (?, ?, ?, ?)
+                ''', (user_id, item['name'], item['price'], item['quantity']))
+                print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}\n")
 
-        conn.commit()
-        conn.close()
+            conn.commit()  # 确保提交事务
+            print("The order has been submitted, thank you for your purchase!")
+        except sqlite3.Error as e:
+            print(f"An error occurred while saving the order: {e}")
+        finally:
+            if conn:
+                conn.close()  # 确保关闭连接
 
-        print("The order has been submitted, thank you for your purchase!")
         CART.clear()  # Clear the shopping cart
     else:
         print("The order has not been submitted.")
@@ -418,7 +423,7 @@ def delete_order_by_id(order_id):
 
 
 # 1.1.10 突然不想吃了取消订单
-def log_out(username):
+def cancel_bill_and_log_out(username):
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
@@ -430,43 +435,6 @@ def log_out(username):
     print("You have been logged out, the shopping cart has been cleared, and your orders have been cancelled.")
     main()
 
-
-# 在调用 log_out() 时传递 username 参数
-# 例如：log_out(current_username)
-
-
-# 1.1.11 更新orders表
-def update_orders_table():
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-
-    # Fetch existing data
-    cursor.execute('SELECT id, username, item_name, price, quantity FROM orders')
-    existing_orders = cursor.fetchall()
-
-    # Drop the existing orders table
-    cursor.execute('DROP TABLE IF EXISTS orders')
-
-    # Create a new orders table with the table_number column
-    cursor.execute('''
-    CREATE TABLE orders (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        item_name TEXT NOT NULL,
-        price REAL NOT NULL,
-        quantity INTEGER NOT NULL,
-        FOREIGN KEY (username) REFERENCES users(username)
-    )
-    ''')
-    # Restore existing data (without table_number)
-    for order in existing_orders:
-        cursor.execute('''
-        INSERT INTO orders (id, username, item_name, price, quantity, table_number)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', (order[0], order[1], order[2], order[3], order[4], 0))  # Default table_number to 0 or handle appropriately
-
-    conn.commit()
-    conn.close()
 
 
 # -----------------CHEF--------------------------------#
