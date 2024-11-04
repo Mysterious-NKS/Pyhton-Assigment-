@@ -408,7 +408,6 @@ def update_orders_table():
         item_name TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
-        table_number INTEGER NOT NULL,
         FOREIGN KEY (username) REFERENCES users(username)
     )
     ''')
