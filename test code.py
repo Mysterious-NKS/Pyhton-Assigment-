@@ -391,17 +391,53 @@ def chef_login():
         else:
             print("Username or password is incorrect, or you are not a chef. Please try again.")
             
-def save_menu_to_file(food_list, drink_list, filename="menu.txt"):
-    with open(filename, 'w') as file:
-        file.write("==== Food Menu ====\n")
-        for food in food_list:
-            file.write(f"Name: {food['name']}, Price: {food['price']}, Recipe: {food['recipe']}\n")
+def save_menu_to_file(food_list, drink_list):
+    with open('menu.txt', 'w') as file:
+        # Set column widths based on maximum lengths for each column
+        name_width = max(max(len(item['name']) for item in food_list),
+                         max(len(item['name']) for item in drink_list),
+                         len("Name"))
+        price_width = len("Price (RM)")
+        recipe_width = max(max(len(item['recipe']) for item in food_list),
+                           max(len(item['recipe']) for item in drink_list),
+                           len("Recipe"))
 
-        file.write("\n==== Drink Menu ====\n")
-        for drink in drink_list:
-            file.write(f"Name: {drink['name']}, Price: {drink['price']}, Recipe: {drink['recipe']}\n")
+        # Define the horizontal separator for the table
+        separator = "+-{}-+-{}-+-{}-+\n".format('-' * name_width, '-' * price_width, '-' * recipe_width)
 
-    print(f"Menu saved to {filename}")
+        # Write food menu header
+        file.write("Food:\n")
+        file.write(separator)
+        file.write("| {:<{}} | {:<{}} | {:<{}} |\n".format("Name", name_width, "Price (RM)", price_width, "Recipe", recipe_width))
+        file.write(separator)
+
+        # Write food items
+        for item in food_list:
+            file.write("| {:<{}} | {:<{}} | {:<{}} |\n".format(
+                item['name'], name_width,
+                item['price'], price_width,
+                item['recipe'], recipe_width
+            ))
+
+        file.write(separator + "\n")
+
+        # Write drink menu header
+        file.write("Drink:\n")
+        file.write(separator)
+        file.write("| {:<{}} | {:<{}} | {:<{}} |\n".format("Name", name_width, "Price (RM)", price_width, "Recipe", recipe_width))
+        file.write(separator)
+
+        # Write drink items
+        for item in drink_list:
+            file.write("| {:<{}} | {:<{}} | {:<{}} |\n".format(
+                item['name'], name_width,
+                item['price'], price_width,
+                item['recipe'], recipe_width
+            ))
+
+        file.write(separator)
+
+    print("Menu has been saved to 'menu.txt' with the requested table format.")
 
 # 1.2.1 厨师菜单
 food_list = [
@@ -609,53 +645,64 @@ def view_menu():
 
 # 1.2.6 查看库存
 def checking_inv():
-    print("==== Inventory Check ====")
-    choice = input("Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
+    with open("inventory.txt", "w") as file:
+        # Prompt user for choice
+        print("==== Inventory Check ====")
+        choice = input(
+            "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
-    if choice == 'specific':
-        check_ing = input("Enter the ingredient: ").strip().lower()
-        if check_ing in food_inv:
-            quantity = food_inv[check_ing]["quantity"]
-            unit = food_inv[check_ing]["unit"]
+        if choice == 'specific':
+            check_ing = input("Enter the ingredient: ").strip().lower()
+            if check_ing in food_inv:
+                quantity = food_inv[check_ing]["quantity"]
+                unit = food_inv[check_ing]["unit"]
 
-            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-            print(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |")
-            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+                # Write header and specific ingredient info to file
+                file.write("==== Inventory Check ====\n")
+                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
+                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
 
-            if len(unit) > 50:
-                wrapped_unit = textwrap.fill(unit, width=50)
-                wrapped_lines = wrapped_unit.split('\n')
-                print(f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |")
-                for line in wrapped_lines[1:]:
-                    print(f"| {' ':<20} | {' ':<10} | {line:<50} |")
+                # Wrap unit text if it's too long
+                if len(unit) > 50:
+                    wrapped_unit = textwrap.fill(unit, width=50)
+                    wrapped_lines = wrapped_unit.split('\n')
+                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |\n")
+                    for line in wrapped_lines[1:]:
+                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                else:
+                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |\n")
+
+                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                print(f"'{check_ing.capitalize()}' has been saved to 'inventory.txt'.")
             else:
-                print(f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |")
+                print(f"'{check_ing.capitalize()}' not available in the inventory.")
+                file.write(f"'{check_ing.capitalize()}' not available in the inventory.\n")
 
-            print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+        elif choice == 'all':
+            # Write header for full inventory list
+            file.write("==== Inventory List ====\n")
+            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
+            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+
+            # Write each item in the inventory to file
+            for ingredient, details in food_inv.items():
+                unit = details['unit']
+                if len(unit) > 50:
+                    wrapped_unit = textwrap.fill(unit, width=50)
+                    wrapped_lines = wrapped_unit.split('\n')
+                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |\n")
+                    for line in wrapped_lines[1:]:
+                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                else:
+                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |\n")
+
+            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            print("Full inventory has been saved to 'inventory.txt'.")
+
         else:
-            print(f"'{check_ing.capitalize()}' not available in the inventory.")
-
-    elif choice == 'all':
-        print("==== Inventory List ====")
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-        print(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |")
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-
-        for ingredient, details in food_inv.items():
-            unit = details['unit']
-            if len(unit) > 50:
-                wrapped_unit = textwrap.fill(unit, width=50)
-                wrapped_lines = wrapped_unit.split('\n')
-                print(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |")
-                for line in wrapped_lines[1:]:
-                    print(f"| {' ':<20} | {' ':<10} | {line:<50} |")
-            else:
-                print(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |")
-
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-
-    else:
-        print("Invalid choice. Please enter 'specific' or 'whole'.")
+            print("Invalid choice. Please enter 'specific' or 'all'.")
 
 
 # 1.2.7 记录生产
