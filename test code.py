@@ -7,7 +7,7 @@ equipment_log = []
 # menu 开data list 和加减食物和水update名字or价格
 # feedback
 # track order status complete and spending
-# 123
+# 123456
 
 
 # 1.0.0 系统read user_data.txt
