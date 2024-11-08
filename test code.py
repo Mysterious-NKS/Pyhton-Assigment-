@@ -1152,7 +1152,7 @@ def cashier_menu():
             transaction_menu()
         elif choice == "4":
             generate_sales_report()
-        elif choice == "0":
+        elif choice == "5":
             print("Exiting Cashier Menu...")
             break
         else:
