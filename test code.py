@@ -206,9 +206,8 @@ def order_menu(username):
 # 1.1.2 登录后系统加载菜单
 def load_menu():
     menu = []
-    for idx, item in enumerate(food_list):
+    for item in food_list:
         menu.append({
-            'num': idx + 1,
             'name': item['name'],
             'price': item['price'],
             'description': item['recipe']
@@ -218,65 +217,34 @@ def load_menu():
 
 # 1.1.3 登入后看菜单
 def display_menu(menu):
-    print("\n=== Menu ===")
-    
-    # 分别显示食物和饮料
-    print("\nFood:")
-    food_items = [item for item in menu if item['type'] == 'food']
-    for idx, item in enumerate(food_items):
-        print(f"{idx + 1}. {item['name']} - RM{item['price']}")
-        if 'recipe' in item:
-            print(f"    Description: {item['recipe']}")
-    
-    print("\nDrink:")
-    drink_items = [item for item in menu if item['type'] == 'drink']
-    food_count = len(food_items)
-    for idx, item in enumerate(drink_items):
-        print(f"{idx + food_count + 1}. {item['name']} - RM{item['price']}")
-        if 'recipe' in item:
-            print(f"    Description: {item['recipe']}")
-
-
-def read_menu_from_file():
-    with open('menu.txt', 'r') as file:
-        return file.read()
+    print("\n=== MENU ===")
+    for idx, item in enumerate(menu):
+        print(f"{idx + 1}. {item['name']} - RM{item['price']}\n  description : {item['description']}")
 
 
 # 1.1.4 会员点单
 def browse_menu():
-    menu = read_menu_from_file()
+    menu = load_menu()
     if not menu:
-        print("The menu is empty and cannot be browsed.")  
+        print("The menu is empty and cannot be browsed.")
         return
 
     while True:
         display_menu(menu)
-        choice = input("\nPlease enter the item number to add it to your cart, or press Enter to return to the main menu: ").strip()
-        
-        # press enter to return to the main menu
-        if choice == '':
+        choice = input(
+            "\nPlease enter the item number to add it to your cart, or enter '0' to return to the main menu: ")
+        if choice == '0':
             break
-            
-        # check if the input is a number and within the valid range
-        try:
-            choice_num = int(choice)
-            if 1 <= choice_num <= len(menu):
-                selected_item = menu[choice_num - 1]
-                quantity = input(f"Please enter the number you want to order {selected_item['name']} : ")
-                
-                if quantity.isdigit() and int(quantity) > 0:
-                    CART.append({
-                        'name': selected_item['name'], 
-                        'price': selected_item['price'], 
-                        'quantity': int(quantity)
-                    })
-                    print(f"\n{quantity} set {selected_item['name']} This item has been added to your cart.\n")
-                else:
-                    print("\nInvalid quantity, please enter a number greater than 0.")
+        elif choice.isdigit() and 1 <= int(choice) <= len(menu):
+            selected_item = menu[int(choice) - 1]
+            quantity = input(f"Please enter the number you want to order {selected_item['name']} : ")
+            if quantity.isdigit() and int(quantity) > 0:
+                CART.append({'name': selected_item['name'], 'price': selected_item['price'], 'quantity': int(quantity)})
+                print(f"{quantity} set {selected_item['name']} This item has been added to your cart.\n")
             else:
-                print(f"\nPlease enter a number between 1 and {len(menu)}.")
-        except ValueError:
-            print("\nInvalid input, please enter a number.")
+                print("Invalid quantity, please try again.")
+        else:
+            print("Invalid option, please try again.")
 
 
 # 1.1.5 看看购物车都有啥
@@ -465,7 +433,7 @@ def save_menu_to_file(food_list, drink_list):
 
     print("Menu has been saved to 'menu.txt' with the requested table format.")
 
-# 1.2.1 厨师菜��
+# 1.2.1 厨师菜单
 food_list = [
     {"name": "Burger", "price": 15, "recipe": "Delicious beef burgers"},
     {"name": "Pizza", "price": 20, "recipe": "Pepperoni"},
@@ -1016,6 +984,9 @@ def view_users():
     finally: #Error handling
         conn.close()
 
+
+
+
 def oversee_order_details():
     while True:
         print("==== Oversee Order Details ====")
@@ -1245,6 +1216,7 @@ def take_order_menu():
         print(f"{item}: {details['quantity']} x RM{details['price']} each")
     print("")
 
+
 def manage_discount_menu():
     while True:
         print("\n==== Manage Discounts ====")
@@ -1264,6 +1236,7 @@ def manage_discount_menu():
             break
         else:
             print("Invalid choice, please try again.")
+
 
 # Dictionary to store discounts specifically for current order items
 discounts = {}  # Example format: {'Burger': 10} for 10% off on Burger
@@ -1317,6 +1290,7 @@ def record_transaction(order):
         transaction.append(item_record)
     sales_records.append(transaction)
     print("Transaction recorded.")
+
 
 def generate_sales_report():
     print("\n--- Sales Report ---")
