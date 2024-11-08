@@ -1169,72 +1169,201 @@ def cashier_login():
 def cashier_menu():
     while True:
         print("\n==== Cashier Menu ====")
-        print("1. Product Display")
-        print("2. Manage Discounts")
-        print("3. Complete Transaction")
-        print("4. Generate Sales Report")
-        print("5. Exit")
+        print("1. View Menu")
+        print("2. Take Order")
+        print("3. Manage Discounts for Order")
+        print("4. Generate Receipt")
+        print("5. Generate Sales Report")  # New option for sales report
+        print("0. Exit")
         choice = input("Choose an option: ")
 
         if choice == "1":
-            product_display_menu()
+            view_menu()
         elif choice == "2":
-            manage_discount_menu()
+            take_order_menu()
         elif choice == "3":
-            transaction_menu()
+            manage_discount_menu()
         elif choice == "4":
-            generate_sales_report()
+            generate_receipt(current_order)
+            record_transaction(current_order)  # Record transaction after generating receipt
+            global current_order
+            current_order = {}  # Clear the order after generating receipt
         elif choice == "5":
+            generate_sales_report()  # Display sales report
+        elif choice == "0":
             print("Exiting Cashier Menu...")
             break
         else:
             print("Invalid choice, please try again.")
+
 
 def product_display_menu():
     print("\n==== Product Display ====")
     view_menu()
     input("\nPress Enter to return to the Cashier Menu.")
 
+# Initialize a dictionary to store the current order
+current_order = {}
+
+def take_order_menu():
+    print("==== Take Order ====")
+    while True:
+        print("Available items to order:")
+        for idx, item in enumerate(food_list + drink_list, start=1):
+            print(f"{idx}. {item['name']} - RM{item['price']} ({item['recipe']})")
+        
+        print("Enter the item name to add to the order (or type 'done' to finish):")
+        item_name = input("Item name: ").strip()
+
+        # Check if the cashier wants to finish taking the order
+        if item_name.lower() == 'done':
+            print("Order complete!")
+            break
+
+        # Find the item in the combined list of food and drinks
+        selected_item = next((item for item in (food_list + drink_list) if item['name'].lower() == item_name.lower()), None)
+        
+        # Check if item was found
+        if selected_item:
+            try:
+                quantity = int(input(f"Enter quantity for {selected_item['name']}: "))
+                if quantity <= 0:
+                    print("Quantity must be greater than zero.")
+                    continue
+                
+                # Add to order, or update quantity if already in the order
+                if item_name in current_order:
+                    current_order[item_name]['quantity'] += quantity
+                else:
+                    current_order[item_name] = {'price': selected_item['price'], 'quantity': quantity}
+                
+                print(f"{quantity} x {selected_item['name']} added to the order.")
+            except ValueError:
+                print("Invalid quantity, please enter a number.")
+        else:
+            print(f"Item '{item_name}' not found in the menu. Please check the name and try again.")
+    
+    print("Order Summary:")
+    for item, details in current_order.items():
+        print(f"{item}: {details['quantity']} x RM{details['price']} each")
+    print("")
+
+
 def manage_discount_menu():
-    print("\n==== Manage Discounts ====")
-    manage_discount()
-    input("\nPress Enter to return to the Cashier Menu.")
+    while True:
+        print("\n==== Manage Discounts ====")
+        print("1. Add Discount")
+        print("2. Remove Discount")
+        print("0. Return to Cashier Menu")
+        choice = input("Choose an option: ")
 
-def manage_discount():
-    pass
+        if choice == "1":
+            item_name = input("Enter item name to add a discount: ")
+            discount_percent = float(input("Enter discount percentage: "))
+            add_discount(item_name, discount_percent)
+        elif choice == "2":
+            item_name = input("Enter item name to remove discount: ")
+            remove_discount(item_name)
+        elif choice == "0":
+            break
+        else:
+            print("Invalid choice, please try again.")
 
-def transaction_menu():
-    print("\n==== Transaction Completion ====")
-    generate_receipt(order)
+
+# Dictionary to store discounts specifically for current order items
+discounts = {}  # Example format: {'Burger': 10} for 10% off on Burger
+
+def add_discount(item_name, discount_percent):
+    if item_name in current_order:  # Only apply discount to items in the current order
+        discounts[item_name] = discount_percent
+        print(f"Discount of {discount_percent}% added for {item_name}.")
+    else:
+        print(f"Item '{item_name}' is not in the current order.")
+
+def remove_discount(item_name):
+    if item_name in discounts:
+        del discounts[item_name]
+        print(f"Discount removed for {item_name}.")
+    else:
+        print(f"No discount found for '{item_name}'.")
 
 def generate_receipt(order):
     print("\n--- Receipt ---")
     total = 0
-    for item, quantity in order.items():
-        if item in view_menu:
-            price = view_menu[item]["price"]
-            item_total = price * quantity
-            if item in discounts:
-                discount = discounts[item]
-                item_total *= (1 - discount / 100)
-                print(f"{item} x{quantity} - ${price} each - {discount}% off - Subtotal: ${round(item_total, 2)}")
-            else:
-                print(f"{item} x{quantity} - ${price} each - Subtotal: ${round(item_total, 2)}")
-            total += item_total
+    for item, details in order.items():
+        price = details["price"]
+        quantity = details["quantity"]
+        item_total = price * quantity
+
+        # Check if a discount applies
+        if item in discounts:
+            discount = discounts[item]
+            item_total *= (1 - discount / 100)  # Apply discount
+            print(f"{item} x{quantity} - RM{price} each - {discount}% off - Subtotal: RM{round(item_total, 2)}")
         else:
-            print(f"Item '{item}' not found in the menu.")
-    
-    print(f"\nTotal: ${round(total, 2)}")
+            print(f"{item} x{quantity} - RM{price} each - Subtotal: RM{round(item_total, 2)}")
+
+        total += item_total
+
+    print(f"\nTotal: RM{round(total, 2)}")
     print("\nThank you for your order!\n")
+
+sales_records = []  # Global list to store each transaction
+
+def record_transaction(order):
+    transaction = []
+    for item, details in order.items():
+        item_record = {
+            "name": item,
+            "quantity": details["quantity"],
+            "price": details["price"],
+            "discount": discounts.get(item, 0),  # Fetch discount if it exists, otherwise 0
+        }
+        transaction.append(item_record)
+    sales_records.append(transaction)
+    print("Transaction recorded.")
 
 
 def generate_sales_report():
-    print("\n==== Sales Report ====")
-    generate_sales_report()  # Call the report function
-    input("\nPress Enter to return to the Cashier Menu.")
+    print("\n--- Sales Report ---")
+    total_sales = 0
+    item_summary = {}
+    total_discounted_amount = 0
 
+    for transaction in sales_records:
+        for item in transaction:
+            item_name = item["name"]
+            quantity = item["quantity"]
+            price = item["price"]
+            discount_percent = item["discount"]
 
+            # Calculate item sales and discounts
+            subtotal = price * quantity
+            discount_amount = subtotal * (discount_percent / 100)
+            discounted_total = subtotal - discount_amount
 
+            # Update total sales
+            total_sales += discounted_total
+            total_discounted_amount += discount_amount
+
+            # Track item popularity
+            if item_name not in item_summary:
+                item_summary[item_name] = {
+                    "quantity_sold": 0,
+                    "revenue": 0,
+                }
+            item_summary[item_name]["quantity_sold"] += quantity
+            item_summary[item_name]["revenue"] += discounted_total
+
+    # Display report
+    print(f"\nTotal Sales Revenue: RM{round(total_sales, 2)}")
+    print(f"Total Discounts Given: RM{round(total_discounted_amount, 2)}")
+
+    print("\nItem Popularity:")
+    for item, data in item_summary.items():
+        print(f"{item} - Quantity Sold: {data['quantity_sold']}, Revenue: RM{round(data['revenue'], 2)}")
+
+    print("\n--- End of Report ---")
 
 
 if __name__ == '__main__':
