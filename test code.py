@@ -449,16 +449,16 @@ drink_list = [
 ]
 
 food_inv = {
-    "bread": {"quantity": 100, "unit": "10kg"},
-    "pepperoni": {"quantity": 50, "unit": "20kg"},
-    "ham": {"quantity": 30, "unit": "30kg"},
-    "lettuce": {"quantity": 75, "unit": "40kg"},
-    "tomato sauce": {"quantity": 20, "unit": "10000ml"},
-    "fish": {"quantity": 50, "unit": "50kg"},
-    "rice": {"quantity": 100, "unit": "60kg"},
-    "tomato": {"quantity": 12, "unit": "70kg"},
-    "chicken": {"quantity": 50, "unit": "80kg"},
-    "flour": {"quantity": 500, "unit": "90kg"}
+    "Bread": {"quantity": 100, "unit": "10Kg"},
+    "Pepperoni": {"quantity": 50, "unit": "20Kg"},
+    "Ham": {"quantity": 30, "unit": "30Kg"},
+    "Lettuce": {"quantity": 75, "unit": "40Kg"},
+    "Bottle tomato sauce": {"quantity": 20, "unit": "10L"},
+    "Fish": {"quantity": 50, "unit": "50Kg"},
+    "Rice": {"quantity": 100, "unit": "60Kg"},
+    "Tomato": {"quantity": 12, "unit": "70Kg"},
+    "Chicken": {"quantity": 50, "unit": "80Kg"},
+    "Flour": {"quantity": 500, "unit": "90Kg"}
 }
 
 
@@ -1129,7 +1129,7 @@ def cashier_login():
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
             print("Login successful!")
-            display_menu()
+            cashier_menu()
             break
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
@@ -1168,6 +1168,9 @@ def manage_discount_menu():
     manage_discount()
     input("\nPress Enter to return to the Cashier Menu.")
 
+def manage_discount():
+    pass
+
 def transaction_menu():
     print("\n==== Transaction Completion ====")
     generate_receipt(order)
@@ -1176,8 +1179,8 @@ def generate_receipt(order):
     print("\n--- Receipt ---")
     total = 0
     for item, quantity in order.items():
-        if item in menu:
-            price = menu[item]["price"]
+        if item in view_menu:
+            price = view_menu[item]["price"]
             item_total = price * quantity
             if item in discounts:
                 discount = discounts[item]
