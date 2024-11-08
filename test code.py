@@ -1162,8 +1162,6 @@ def cashier_menu():
         else:
             print("Invalid choice, please try again.")
 
-
-
 def product_display_menu():
     print("\n==== Product Display ====")
     view_menu()
@@ -1215,7 +1213,6 @@ def take_order_menu():
         print(f"{item}: {details['quantity']} x RM{details['price']} each")
     print("")
 
-
 def manage_discount_menu():
     while True:
         print("\n==== Manage Discounts ====")
@@ -1235,7 +1232,6 @@ def manage_discount_menu():
             break
         else:
             print("Invalid choice, please try again.")
-
 
 # Dictionary to store discounts specifically for current order items
 discounts = {}  # Example format: {'Burger': 10} for 10% off on Burger
@@ -1289,7 +1285,6 @@ def record_transaction(order):
         transaction.append(item_record)
     sales_records.append(transaction)
     print("Transaction recorded.")
-
 
 def generate_sales_report():
     print("\n--- Sales Report ---")
