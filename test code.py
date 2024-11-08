@@ -1135,7 +1135,7 @@ def cashier_login():
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
             print("Login successful!")
-            display_menu()
+            cashier_menu()
             break
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
@@ -1174,6 +1174,9 @@ def manage_discount_menu():
     manage_discount()
     input("\nPress Enter to return to the Cashier Menu.")
 
+def manage_discount():
+    pass
+
 def transaction_menu():
     print("\n==== Transaction Completion ====")
     generate_receipt(order)
@@ -1182,8 +1185,8 @@ def generate_receipt(order):
     print("\n--- Receipt ---")
     total = 0
     for item, quantity in order.items():
-        if item in browse_menu:
-            price = menu[item]["price"]
+        if item in view_menu:
+            price = view_menu[item]["price"]
             item_total = price * quantity
             if item in discounts:
                 discount = discounts[item]
