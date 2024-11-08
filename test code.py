@@ -6,6 +6,7 @@ equipment_log = []
 
 # track order ,pending,complete,cooking
 # user key exit 可以退出
+# 开一个database for receipt discount(结账界面,有用discount的在隔壁行显示用了多少)
 
 # 1.0.0 系统read user_data.txt
 def main():
@@ -371,7 +372,7 @@ def log_out(username):
 
 
 
-# -----------------CHEF--------------------------------#
+# -------------------------------------------------------------CHEF---------------------------------------------------------------------#
 # 1.2.0 厨师登入
 def chef_login():
     print("\n==== Chef Login ====")
@@ -392,12 +393,12 @@ def save_menu_to_file(food_list, drink_list):
     with open('menu.txt', 'w') as file:
         # Set column widths based on maximum lengths for each column
         name_width = max(max(len(item['name']) for item in food_list),
-                         max(len(item['name']) for item in drink_list),
-                         len("Name"))
+                        max(len(item['name']) for item in drink_list),
+                        len("Name"))
         price_width = len("Price (RM)")
         recipe_width = max(max(len(item['recipe']) for item in food_list),
-                           max(len(item['recipe']) for item in drink_list),
-                           len("Recipe"))
+                        max(len(item['recipe']) for item in drink_list),
+                        len("Recipe"))
 
         # Define the horizontal separator for the table
         separator = "+-{}-+-{}-+-{}-+\n".format('-' * name_width, '-' * price_width, '-' * recipe_width)
