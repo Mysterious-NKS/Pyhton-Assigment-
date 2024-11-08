@@ -236,8 +236,8 @@ def browse_menu():
     while True:
         display_menu(menu)
         choice = input(
-            "\nPlease enter the item number to add it to your cart, or enter '0' to return to the main menu: ")
-        if choice == '0':
+            "\nPlease enter the item number to add it to your cart, or press enter to return to the main menu: ")
+        if choice == '':
             break
         elif choice.isdigit() and 1 <= int(choice) <= len(menu):
             selected_item = menu[int(choice) - 1]
