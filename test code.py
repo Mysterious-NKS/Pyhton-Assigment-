@@ -7,6 +7,7 @@ equipment_log = []
 # track order ,pending,complete,cooking
 # user key exit 可以退出
 # 开一个database for receipt discount(结账界面,有用discount的在隔壁行显示用了多少)
+#order id 不重复when叫多个食物
 
 # 1.0.0 主菜单  
 def main():  
@@ -33,17 +34,15 @@ def setup_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
-    # Drop the existing orders table if it exists
-    cursor.execute('DROP TABLE IF EXISTS orders')
-
-    # Create a new orders table without the table_number column
+    # Create orders table if it doesn't exist (removed DROP TABLE)
     cursor.execute('''
-    CREATE TABLE orders (
+    CREATE TABLE IF NOT EXISTS orders (
         order_id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         item_name TEXT NOT NULL,
         price REAL NOT NULL,
         quantity INTEGER NOT NULL,
+        status TEXT DEFAULT 'pending',
         FOREIGN KEY (user_id) REFERENCES users(id)
     )
     ''')
@@ -186,7 +185,7 @@ def order_menu(username):
         print("4. Check out")
         print("5. Track order status")
         print("6. Provide feedback")
-        print("7. Log out")
+        print("7. Exit")
         choice = input("Please select an action (1-7): ")
         if choice == '1':
             browse_menu()
@@ -199,9 +198,9 @@ def order_menu(username):
         elif choice == '5':
             track_order_status(username)
         elif choice == '6':
-            provide_feedback()
+            feedback(username)
         elif choice == '7':
-            log_out(username)
+            exit(username)
         else:
             print("Invalid choice, please try again.")
 
@@ -371,16 +370,29 @@ def checkout(username):
             cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
             user_id = cursor.fetchone()[0]
 
+            # 存储所有新创建的订单ID
+            new_order_ids = []
+
             for item in CART:
                 # Save to database
                 cursor.execute('''
                 INSERT INTO orders (user_id, item_name, price, quantity)
                 VALUES (?, ?, ?, ?)
                 ''', (user_id, item['name'], item['price'], item['quantity']))
-                print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}\n")
+                
+                # 获取最新插入的订单ID
+                new_order_ids.append(cursor.lastrowid)
+                print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}")
 
             conn.commit()  # 确保提交事务
-            print("The order has been submitted, thank you for your purchase!")
+            
+            # 打印所有新创建的订单ID
+            print("\nOrder IDs for your reference:")
+            for order_id in new_order_ids:
+                print(f"Order ID: {order_id}")
+            
+            print("\nThe order has been submitted, thank you for your purchase!")
+            
         except sqlite3.Error as e:
             print(f"An error occurred while saving the order: {e}")
         finally:
@@ -435,33 +447,53 @@ def track_order_status(username):
 
 
 # 1.1.9 提供反馈
-def provide_feedback():
-    print("=== Provide Feedback ===")
-    order_id = input("Enter your order ID: ")
-    if not order_id.isdigit():
-        print("Invalid order ID.")
-        return
+def feedback(username):
+    print("\n=== Feedback ===")
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
 
-    feedback = input("Please enter your feedback: ")
+        # 获取用户ID
+        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        user_id = cursor.fetchone()[0]
 
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
+        # 获取用户最近的订单ID
+        cursor.execute('''
+        SELECT order_id, item_name, price, quantity 
+        FROM orders 
+        WHERE user_id = ? 
+        ORDER BY order_id DESC 
+        LIMIT 1''', (user_id,))
+        
+        latest_order = cursor.fetchone()
+        
+        if not latest_order:
+            print("No orders found. Please make an order first.")
+            return
 
-    cursor.execute('''
-    INSERT INTO feedback (order_id, feedback)
-    VALUES (?, ?)
-    ''', (int(order_id), feedback))
+        order_id = latest_order[0]
+        print(f"\nProviding feedback for Order ID: {order_id}")
+        print(f"Item: {latest_order[1]}")
+        print(f"Price: RM{latest_order[2]}")
+        print(f"Quantity: {latest_order[3]}")
+        
+        # 获取用户反馈
+        feedback_text = input("\nPlease enter your feedback: ")
+        
+        # 保存反馈
+        cursor.execute('''
+        INSERT INTO feedback (order_id, feedback)
+        VALUES (?, ?)
+        ''', (order_id, feedback_text))
+        
+        conn.commit()
+        print("\nThank you for your feedback!")
 
-    conn.commit()
-    conn.close()
-
-    print("Thank you for your feedback!")
-
-
-def log_out(username):
-    print(f"Logging out {username}...")
-    print("Logged out successfully.")
-    exit()
+    except sqlite3.Error as e:
+        print(f"Error submitting feedback: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 
