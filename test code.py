@@ -8,9 +8,8 @@ equipment_log = []
 # user key exit 可以退出
 # 开一个database for receipt discount(结账界面,有用discount的在隔壁行显示用了多少)
 
-# 1.0.0 系统read user_data.txt
-def main():
-    setup_database()  
+# 1.0.0 主菜单  
+def main():  
     while True:
         print("\nselect an operation:")
         print("1. register")
@@ -222,8 +221,60 @@ def load_menu():
 # 1.1.3 登入后看菜单
 def display_menu(menu):
     print("\n=== MENU ===")
-    for idx, item in enumerate(menu):
-        print(f"{idx + 1}. {item['name']} - RM{item['price']}\n  description : {item['description']}")
+    
+    print("\nFood:")
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+    print(f"| {'No.':<3} | {'Name':<13} | {'Price (RM)':<10} | {'Recipe':<50} |")
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+
+    if not food_list:
+        print(f"| {'No food items available':<84} |")
+    else:
+        for idx, item in enumerate(food_list, 1):
+            wrapped_name = textwrap.wrap(item['name'], width=13)
+            wrapped_price = textwrap.wrap(f"{item['price']:.2f}", width=10)
+            wrapped_recipe = textwrap.wrap(item['recipe'], width=50)
+
+            print(f"| {idx:<3} | {wrapped_name[0]:<13} | {wrapped_price[0]:<10} | {wrapped_recipe[0]:<50} |")
+            
+            for line in wrapped_name[1:]:
+                print(f"| {'':<3} | {line:<13} | {'':<10} | {'':<50} |")
+
+            for line in wrapped_price[1:]:
+                print(f"| {'':<3} | {'':<13} | {line:<10} | {'':<50} |")
+
+            for line in wrapped_recipe[1:]:
+                print(f"| {'':<3} | {'':<13} | {'':<10} | {line:<50} |")
+
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+
+    print("\nDrink:")
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+    print(f"| {'No.':<3} | {'Name':<13} | {'Price (RM)':<10} | {'Recipe':<50} |")
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+
+    if not drink_list:
+        print(f"| {'No drink items available':<84} |")
+    else:
+        for idx, item in enumerate(drink_list, len(food_list) + 1):
+            wrapped_name = textwrap.wrap(item['name'], width=13)
+            wrapped_price = textwrap.wrap(f"{item['price']:.2f}", width=10)
+            wrapped_recipe = textwrap.wrap(item['recipe'], width=50)
+
+            print(f"| {idx:<3} | {wrapped_name[0]:<13} | {wrapped_price[0]:<10} | {wrapped_recipe[0]:<50} |")
+            
+            for line in wrapped_name[1:]:
+                print(f"| {'':<3} | {line:<13} | {'':<10} | {'':<50} |")
+
+            for line in wrapped_price[1:]:
+                print(f"| {'':<3} | {'':<13} | {line:<10} | {'':<50} |")
+
+            for line in wrapped_recipe[1:]:
+                print(f"| {'':<3} | {'':<13} | {'':<10} | {line:<50} |")
+
+    print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
+    print("")
+
 
 
 # 1.1.4 会员点单
@@ -234,16 +285,22 @@ def browse_menu():
         return
 
     while True:
+        # 创建一个组合列表，包含所有食物和饮料
+        all_items = food_list + drink_list
         display_menu(menu)
-        choice = input(
-            "\nPlease enter the item number to add it to your cart, or press enter to return to the main menu: ")
+        choice = input("\nPlease enter the item number to add it to your cart, or press enter to return to the main menu: ")
+        
         if choice == '':
             break
-        elif choice.isdigit() and 1 <= int(choice) <= len(menu):
-            selected_item = menu[int(choice) - 1]
+        elif choice.isdigit() and 1 <= int(choice) <= len(all_items):  # 修改这里的判断条件
+            selected_item = all_items[int(choice) - 1]  # 使用组合列表获取选中项
             quantity = input(f"Please enter the number you want to order {selected_item['name']} : ")
             if quantity.isdigit() and int(quantity) > 0:
-                CART.append({'name': selected_item['name'], 'price': selected_item['price'], 'quantity': int(quantity)})
+                CART.append({
+                    'name': selected_item['name'], 
+                    'price': selected_item['price'], 
+                    'quantity': int(quantity)
+                })
                 print(f"{quantity} set {selected_item['name']} This item has been added to your cart.\n")
             else:
                 print("Invalid quantity, please try again.")
@@ -338,7 +395,43 @@ def checkout(username):
 # 1.1.8 查看订单状态
 def track_order_status(username):
     print("=== Order Tracking ===")
-    pass
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # 获取用户ID
+        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        user_id = cursor.fetchone()[0]
+
+        # 查询该用户的所有订单
+        cursor.execute('''
+        SELECT order_id, item_name, price, quantity, status 
+        FROM orders 
+        WHERE user_id = ?
+        ORDER BY order_id DESC
+        ''', (user_id,))
+        
+        orders = cursor.fetchall()
+        
+        if not orders:
+            print("You have no order records yet.")
+            return
+            
+        print("\nYour order status:")
+        for order in orders:
+            order_id, item, price, quantity, status = order
+            print(f"\nOrder ID: {order_id}")
+            print(f"Item: {item}")
+            print(f"Price: RM{price}")
+            print(f"Quantity: {quantity}")
+            print(f"Status: {status if status else 'pending'}")
+            print("-" * 30)
+            
+    except sqlite3.Error as e:
+        print(f"check order status error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # 1.1.9 提供反馈
@@ -368,7 +461,7 @@ def provide_feedback():
 def log_out(username):
     print(f"Logging out {username}...")
     print("Logged out successfully.")
-    main()
+    exit()
 
 
 
@@ -1180,45 +1273,54 @@ current_order = {}
 def take_order_menu():
     print("==== Take Order ====")
     while True:
+        all_items = food_list + drink_list
+        
         print("Available items to order:")
-        for idx, item in enumerate(food_list + drink_list, start=1):
+        for idx, item in enumerate(all_items, 1):
             print(f"{idx}. {item['name']} - RM{item['price']} ({item['recipe']})")
         
-        print("Enter the item name to add to the order (or type 'done' to finish):")
-        item_name = input("Item name: ").strip()
-
-        # Check if the cashier wants to finish taking the order
-        if item_name.lower() == 'done':
+        choice = input("\nPlease enter the item number to add it to your cart, or press enter to finish: ").strip()
+        
+        if choice == '':
             print("Order complete!")
             break
-
-        # Find the item in the combined list of food and drinks
-        selected_item = next((item for item in (food_list + drink_list) if item['name'].lower() == item_name.lower()), None)
         
-        # Check if item was found
-        if selected_item:
+        if not choice.isdigit():
+            print("Please enter a valid number.")
+            continue
+            
+        choice = int(choice)
+        
+        if 1 <= choice <= len(all_items):
+            selected_item = all_items[choice - 1]
             try:
                 quantity = int(input(f"Enter quantity for {selected_item['name']}: "))
                 if quantity <= 0:
                     print("Quantity must be greater than zero.")
                     continue
                 
-                # Add to order, or update quantity if already in the order
-                if item_name in current_order:
-                    current_order[item_name]['quantity'] += quantity
+                if selected_item['name'] in current_order:
+                    current_order[selected_item['name']]['quantity'] += quantity
                 else:
-                    current_order[item_name] = {'price': selected_item['price'], 'quantity': quantity}
+                    current_order[selected_item['name']] = {
+                        'price': selected_item['price'], 
+                        'quantity': quantity
+                    }
                 
                 print(f"{quantity} x {selected_item['name']} added to the order.")
             except ValueError:
                 print("Invalid quantity, please enter a number.")
         else:
-            print(f"Item '{item_name}' not found in the menu. Please check the name and try again.")
+            print("Invalid option, please try again.")
     
-    print("Order Summary:")
-    for item, details in current_order.items():
-        print(f"{item}: {details['quantity']} x RM{details['price']} each")
-    print("")
+    # 显示订单摘要
+    if current_order:
+        print("\nOrder Summary:")
+        for item, details in current_order.items():
+            print(f"{item}: {details['quantity']} x RM{details['price']} each")
+        print("")
+    else:
+        print("No items in order.")
 
 
 def manage_discount_menu():
