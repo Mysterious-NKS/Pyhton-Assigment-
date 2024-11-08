@@ -4,6 +4,9 @@ CART = []
 production_log = []
 equipment_log = []
 
+# track order ,pending,complete,cooking
+# user key exit 可以退出
+
 # 1.0.0 系统read user_data.txt
 def main():
     setup_database()  
