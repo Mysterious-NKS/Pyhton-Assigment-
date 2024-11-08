@@ -4,15 +4,9 @@ CART = []
 production_log = []
 equipment_log = []
 
-# menu 开data list 和加减食物和水update名字or价格
-# feedback
-# track order status complete and spending
-# 123456
-
-
 # 1.0.0 系统read user_data.txt
 def main():
-    setup_database()  # 确保数据库和表已创建
+    setup_database()  
     while True:
         print("\nselect an operation:")
         print("1. register")
@@ -455,16 +449,16 @@ drink_list = [
 ]
 
 food_inv = {
-    "bread": {"quantity": 100, "unit": "10kg"},
-    "pepperoni": {"quantity": 50, "unit": "20kg"},
-    "ham": {"quantity": 30, "unit": "30kg"},
-    "lettuce": {"quantity": 75, "unit": "40kg"},
-    "tomato sauce": {"quantity": 20, "unit": "10000ml"},
-    "fish": {"quantity": 50, "unit": "50kg"},
-    "rice": {"quantity": 100, "unit": "60kg"},
-    "tomato": {"quantity": 12, "unit": "70kg"},
-    "chicken": {"quantity": 50, "unit": "80kg"},
-    "flour": {"quantity": 500, "unit": "90kg"}
+    "Bread": {"quantity": 100, "unit": "10Kg"},
+    "Pepperoni": {"quantity": 50, "unit": "20Kg"},
+    "Ham": {"quantity": 30, "unit": "30Kg"},
+    "Lettuce": {"quantity": 75, "unit": "40Kg"},
+    "Bottle tomato sauce": {"quantity": 20, "unit": "10L"},
+    "Fish": {"quantity": 50, "unit": "50Kg"},
+    "Rice": {"quantity": 100, "unit": "60Kg"},
+    "Tomato": {"quantity": 12, "unit": "70Kg"},
+    "Chicken": {"quantity": 50, "unit": "80Kg"},
+    "Flour": {"quantity": 500, "unit": "90Kg"}
 }
 
 
