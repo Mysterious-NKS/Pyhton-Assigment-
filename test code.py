@@ -1182,7 +1182,7 @@ def generate_receipt(order):
     print("\n--- Receipt ---")
     total = 0
     for item, quantity in order.items():
-        if item in menu:
+        if item in browse_menu:
             price = menu[item]["price"]
             item_total = price * quantity
             if item in discounts:
