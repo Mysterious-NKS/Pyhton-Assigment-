@@ -1016,9 +1016,6 @@ def view_users():
     finally: #Error handling
         conn.close()
 
-
-
-
 def oversee_order_details():
     while True:
         print("==== Oversee Order Details ====")
@@ -1167,13 +1164,15 @@ def cashier_login():
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
 def cashier_menu():
+    global current_order  # Move this to the beginning of the function
+
     while True:
         print("\n==== Cashier Menu ====")
         print("1. View Menu")
         print("2. Take Order")
         print("3. Manage Discounts for Order")
         print("4. Generate Receipt")
-        print("5. Generate Sales Report")  # New option for sales report
+        print("5. Generate Sales Report")
         print("0. Exit")
         choice = input("Choose an option: ")
 
@@ -1186,15 +1185,15 @@ def cashier_menu():
         elif choice == "4":
             generate_receipt(current_order)
             record_transaction(current_order)  # Record transaction after generating receipt
-            global current_order
             current_order = {}  # Clear the order after generating receipt
         elif choice == "5":
-            generate_sales_report()  # Display sales report
+            generate_sales_report()
         elif choice == "0":
             print("Exiting Cashier Menu...")
             break
         else:
             print("Invalid choice, please try again.")
+
 
 
 def product_display_menu():
