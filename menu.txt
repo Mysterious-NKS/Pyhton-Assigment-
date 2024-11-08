@@ -1,0 +1,20 @@
+Food:
++-----------+------------+--------------------------+
+| Name      | Price (RM) | Recipe                   |
++-----------+------------+--------------------------+
+| Burger    | 15         | Delicious beef burgers   |
+| Pizza     | 20         | Pepperoni                |
+| Salad     | 10         | Healthy green salad      |
+| Sushi     | 25         | Fresh sushi platter      |
+| Tacos     | 12         | Spicy Mexican tacos      |
+| Pasta     | 18         | Classic Italian pasta    |
++-----------+------------+--------------------------+
+
+Drink:
++-----------+------------+--------------------------+
+| Name      | Price (RM) | Recipe                   |
++-----------+------------+--------------------------+
+| Tea       | 4          | A warm tea from hometown |
+| Water     | 1.5        | Average fresh water      |
+| Warm Milk | 4.0        | cow                      |
++-----------+------------+--------------------------+
