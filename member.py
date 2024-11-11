@@ -127,7 +127,6 @@ def display_menu(menu):
     print("")
 
 
-
 # 1.1.4 会员点单
 def browse_menu():
     menu = load_menu()
