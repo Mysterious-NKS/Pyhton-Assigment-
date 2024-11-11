@@ -446,6 +446,3 @@ def feedback(username):
     finally:
         if conn:
             conn.close()
-
-
-# Add the rest of the member-related functions here (order_menu, browse_menu, etc.) 

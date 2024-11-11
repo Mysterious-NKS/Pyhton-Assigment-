@@ -1,7 +1,7 @@
 from database import setup_database, load_users, save_user
 from member import member_login
 from chef import chef_login
-# from manager import manager_login
+from manager import manager_login
 from cashier import cashier_login
 
 def register():
