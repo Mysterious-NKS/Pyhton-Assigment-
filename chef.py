@@ -67,12 +67,12 @@ def save_menu_to_file(food_list, drink_list):
 
 # 1.2.1 厨师菜单
 food_list = [
-    {"name": "Burger", "price": 15, "recipe": "Delicious beef burgers"},
-    {"name": "Pizza", "price": 20, "recipe": "Pepperoni"},
-    {"name": "Salad", "price": 10, "recipe": "Healthy green salad"},
-    {"name": "Sushi", "price": 25, "recipe": "Fresh sushi platter"},
-    {"name": "Tacos", "price": 12, "recipe": "Spicy Mexican tacos"},
-    {"name": "Pasta", "price": 18, "recipe": "Classic Italian pasta"}
+    {"name": "Burger", "price": 15, "recipe": "Patty, burger bun, lettuce, ketchup"},
+    {"name": "Pizza", "price": 20, "recipe": "Flour, mozzarella cheese, pepperoni, onions"},
+    {"name": "Salad", "price": 10, "recipe": "Sliced tomatoes, sliced avacado, sliced cuccumber, mustard"},
+    {"name": "Sushi", "price": 25, "recipe": "Rice, salmon fish, seaweeds"},
+    {"name": "Tacos", "price": 12, "recipe": "Onions, chopped chicken, chili powder, lettuce, diced tomatoes, shredded cheese"},
+    {"name": "Pasta", "price": 18, "recipe": "Fettuccine , grilled chicken, tomato sauce, meatballs, garnish"}
 ]
 
 drink_list = [
