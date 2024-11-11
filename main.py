@@ -12,17 +12,17 @@ def register():
     clear_screen()
     print("\n╔══════════════════════════════════╗")
     print("║        User Registration         ║")
-    print("╠══════════════════════════════════╣")
-    username = input("► Username: ")
-    password = input("► Password: ")
+    print("╚══════════════════════════════════╝")
+    username = input(" what is your username ► ")
+    password = input(" what is your password ► ")
+    print("\n╔══════════════════════════════════╗")
     print("║ Select User Type:                ║")
     print("║ 1. Member                        ║")
     print("║ 2. Manager                       ║")
     print("║ 3. Chef                          ║")
     print("║ 4. Cashier                       ║")
     print("╚══════════════════════════════════╝")
-    
-    type_choice = input("► ")
+    type_choice = input(" what is your user type ► ")
     
     # 用户类型映射
     type_map = {
@@ -35,24 +35,17 @@ def register():
     user_type = type_map.get(type_choice)
     
     if not user_type:
-        print("\n╔══════════════════════════════════╗")
-        print("║      Invalid user type! ❌        ║")
-        print("╚══════════════════════════════════╝")
+        print("\nInvalid user type! ❌")
         input("\nPress Enter to continue...")
         return
         
     users = load_users()
     if any(user[0] == username for user in users):
-        print("\n╔══════════════════════════════════╗")
-        print("║    Username already exists! ❌    ║")
-        print("╚══════════════════════════════════╝")
+        print("Username already exists! ❌")
         input("\nPress Enter to continue...")
     else:
         save_user(username, password, user_type)
-        print("\n╔══════════════════════════════════╗")
-        print("║   Registration successful! ✓      ║")
-        print("╚══════════════════════════════════╝")
-        input("\nPress Enter to continue...")
+        print("\nRegistration successful! ✓")
 
 def login():
     while True:

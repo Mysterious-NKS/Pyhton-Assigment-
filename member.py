@@ -12,13 +12,15 @@ def clear_screen():
 # 1.1.0 会员登入
 def member_login():
     clear_screen()
-    print("\n==== Member Login ====")
+    print("\n╔══════════════════════════════════╗")
+    print("║        Member Login              ║")
+    print("╚══════════════════════════════════╝")
     while True:
-        username = input("Please enter a username (or type 'undo' to go back): ")
+        username = input("Please enter a username (type 'undo' to go back) ► ")
         if username.lower() == 'undo':
             return
             
-        password = input("Please enter a password: ")
+        password = input("Please enter a password ► ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
 
@@ -37,14 +39,16 @@ def member_login():
 # 1.1.1   登入了可以干嘛
 def order_menu(username):
     while True:
-        print("\n==== Member Menu ====")
+        print("\n╔══════════════════════════════════╗")
+        print("║        Member Menu               ║")
+        print("╚══════════════════════════════════╝")
         print("1. Browse menu")
         print("2. view and modify cart")
         print("3. checkout")
         print("4. track order status")
         print("5. provide feedback")
         print("6. Exit")
-        choice = input("Please select an action (1-6): ")
+        choice = input("Please select an action (1-6) ► ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -76,7 +80,9 @@ def load_menu():
 
 # 1.1.3 登入后看菜单
 def display_menu(menu):
-    print("\n=== MENU ===")
+    print("\n╔══════════════════════════════════╗")
+    print("║            MENU                  ║")
+    print("╚══════════════════════════════════╝")
     
     print("\nFood:")
     print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
