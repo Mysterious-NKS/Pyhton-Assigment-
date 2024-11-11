@@ -9,8 +9,8 @@ CART = []
 def member_login():
     print("\n==== Member Login ====")
     while True:
-        username = input("Please enter a username (or type 'return' to go back): ")
-        if username.lower() == 'return':
+        username = input("Please enter a username (or type 'undo' to go back): ")
+        if username.lower() == 'undo':
             return
             
         password = input("Please enter a password: ")
