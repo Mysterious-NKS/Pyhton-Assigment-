@@ -11,6 +11,7 @@ def setup_database():
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         user_type TEXT NOT NULL
+        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
 

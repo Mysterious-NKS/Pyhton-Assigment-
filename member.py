@@ -38,9 +38,8 @@ def order_menu(username):
         print("3. checkout")
         print("4. track order status")
         print("5. provide feedback")
-        print("6. delete order")
-        print("7. Exit")
-        choice = input("Please select an action (1-7): ")
+        print("6. Exit")
+        choice = input("Please select an action (1-6): ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -51,67 +50,11 @@ def order_menu(username):
             track_order_status(username)
         elif choice == '5':
             feedback(username)
-        elif choice == '6':
-            delete_order(username)
-        elif choice == '7':
+        elif choice == '6': 
             print(f"{username} Goodbye!")
             exit()
         else:
             print("Invalid choice, please try again.")
-
-
-def delete_order(username):
-    print("\n=== Delete Order ===")
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-
-        # Get user_id
-        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
-        user_id = cursor.fetchone()[0]
-
-        # Get all orders for this user
-        cursor.execute('''
-            SELECT o.order_id, o.total_amount, o.status, GROUP_CONCAT(oi.item_name || ' x' || oi.quantity) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.order_id = oi.order_id
-            WHERE o.user_id = ?
-            GROUP BY o.order_id
-            ORDER BY o.order_id DESC
-        ''', (user_id,))
-        
-        orders = cursor.fetchall()
-
-        if not orders:
-            print("No orders found.")
-            return
-
-        print("\nYour Orders:")
-        for order in orders:
-            order_id, total_amount, status, items = order
-            print(f"\nOrder ID: {order_id}")
-            print(f"Items: {items}")
-            print(f"Total Amount: RM{total_amount}")
-            print(f"Status: {status}")
-            print("-" * 30)
-
-        order_to_delete = input("\nEnter the Order ID to delete (or press Enter to cancel): ")
-        
-        if order_to_delete.strip() == '':
-            print("Deletion cancelled.")
-            return
-
-        if not order_to_delete.isdigit():
-            print("Invalid Order ID.")
-            return
-
-        order_id = int(order_to_delete)
-
-        # Check if order exists an
-    except sqlite3.Error as e:
-        print(f"An error occurred while accessing the database: {e}")
-    finally:
-        conn.close()
 
 
 # 1.1.2 登录后系统加载菜单
