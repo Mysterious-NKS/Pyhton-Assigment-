@@ -1,7 +1,7 @@
 from database import setup_database, load_users, save_user
 from member import member_login
 from chef import chef_login
-from manager import manager_login
+
 from cashier import cashier_login
 
 def register():
@@ -32,13 +32,14 @@ def login():
         if choice == '1':
             member_login()
         elif choice == '2':
-            manager_login()
+            pass
         elif choice == '3':
             chef_login()
         elif choice == '4':
             cashier_login()
         elif choice == '5':
-            main()
+            print("\nThank you for using our system. Goodbye!")
+            break
         else:
             print("Invalid choice, please try again.")
 
