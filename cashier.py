@@ -69,7 +69,7 @@ def take_order_menu():
         for idx, item in enumerate(all_items, 1):
             print(f"{idx}. {item['name']} - RM{item['price']} ({item['recipe']})")
         
-        choice = input("\nPlease enter the item number to add it to your cart, or press enter to finish: ").strip()
+        choice = input("\nPlease enter the item number to add into cart, or press enter to finish: ").strip()
         
         if choice == '':
             print("Order complete!")
