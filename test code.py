@@ -4,9 +4,7 @@ CART = []
 production_log = []
 equipment_log = []
 
-# track order ,pending,complete,cooking
 # 开一个database for receipt discount(结账界面,有用discount的在隔壁行显示用了多少)
-#order id 不重复when叫多个食物
 
 # 1.0.0 主菜单  
 def main():  
@@ -194,29 +192,26 @@ def order_menu(username):
     print("==== Member Menu ====")
     while True:
         print("\n1. Browse menu")
-        print("2. Check shopping cart")
-        print("3. Change order")
-        print("4. Check out")
-        print("5. Track order status")
-        print("6. Provide feedback")
-        print("7. delete order")
-        print("8. Exit")
-        choice = input("Please select an action (1-8): ")
+        print("2. view and modify cart")
+        print("3. checkout")
+        print("4. track order status")
+        print("5. provide feedback")
+        print("6. delete order")
+        print("7. Exit")
+        choice = input("Please select an action (1-7): ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
-            view_cart()
+            view_and_modify_cart()
         elif choice == '3':
-            modify_cart()
-        elif choice == '4':
             checkout(username)
-        elif choice == '5':
+        elif choice == '4':
             track_order_status(username)
-        elif choice == '6':
+        elif choice == '5':
             feedback(username)
-        elif choice == '7':
+        elif choice == '6':
             delete_order(username)
-        elif choice == '8':
+        elif choice == '7':
             exit(username)
         else:
             print("Invalid choice, please try again.")
@@ -378,32 +373,22 @@ def browse_menu():
             print("Invalid option, please try again.")
 
 
-# 1.1.5 看看购物车都有啥
-def view_cart():
+# 1.1.5 查看购物车
+def view_and_modify_cart():
     if not CART:
         print("The shopping cart is empty.")
         return
 
-    print("\n=== SHOPPING CART ===")
-    total = 0
-    for item in CART:
-        print(f"{item['name']} - RM{item['price']} x {item['quantity']}")
-        total += item['price'] * item['quantity']
-    print(f"\ntotal: RM{total}\n")
-
-
-# 1.1.6 修改购物车内容
-def modify_cart():
-    if not CART:
-        print("The shopping cart is empty and cannot be modified.")
-        return
-
     while True:
-        print("\n=== Modify shopping cart ===")
+        print("\n=== SHOPPING CART ===")
+        total = 0
         for idx, item in enumerate(CART):
             print(f"{idx + 1}. {item['name']} - RM{item['price']} x {item['quantity']}")
-        choice = input("\nPlease enter the product number to be modified, or enter '0' to return: ")
-        if choice == '0':
+            total += item['price'] * item['quantity']
+        print(f"\nTotal: RM{total}\n")
+
+        choice = input("\nEnter item number to modify, or press enter to return: ")
+        if choice == '':
             break
         elif choice.isdigit() and 1 <= int(choice) <= len(CART):
             selected_item = CART[int(choice) - 1]
@@ -429,56 +414,87 @@ def checkout(username):
         print("The shopping cart is empty and cannot be checked out.")
         return
 
-    view_cart()
+    try:
+        # 显示订单摘要
+        print("\n=== Order Summary ===")
+        total_amount = 0
+        print("\nItems in your cart:")
+        for item in CART:
+            subtotal = item['price'] * item['quantity']
+            total_amount += subtotal
+            print(f"- {item['name']}")
+            print(f"  Price: RM{item['price']} x {item['quantity']} = RM{subtotal}")
+        
+        print(f"\nTotal Amount: RM{total_amount}")
+        
+        # 确认订单详情
+        print("\nPlease confirm your order details:")
+        print("1. Confirm and place order")
+        print("2. Return to cart to modify")
+        
+        choice = input("\nYour choice (1-3): ")
+        
+        if choice == '1':
+            try:
+                conn = sqlite3.connect('users.db')
+                cursor = conn.cursor()
 
-    confirm = input("Confirm the order?(y/n): ")
-    if confirm.lower() == 'y':
-        try:
-            conn = sqlite3.connect('users.db')
-            cursor = conn.cursor()
+                # 获取用户ID
+                cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+                user_id = cursor.fetchone()[0]
 
-            # Get user_id
-            cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
-            user_id = cursor.fetchone()[0]
-
-            # Calculate total amount
-            total_amount = sum(item['price'] * item['quantity'] for item in CART)
-
-            # Create main order record
-            cursor.execute('''
-            INSERT INTO orders (user_id, total_amount)
-            VALUES (?, ?)
-            ''', (user_id, total_amount))
-            
-            order_id = cursor.lastrowid
-
-            # Insert order items
-            for item in CART:
+                # 创建主订单记录
                 cursor.execute('''
-                INSERT INTO order_items (order_id, item_name, price, quantity)
-                VALUES (?, ?, ?, ?)
-                ''', (order_id, item['name'], item['price'], item['quantity']))
+                INSERT INTO orders (user_id, total_amount)
+                VALUES (?, ?)
+                ''', (user_id, total_amount))
+                
+                order_id = cursor.lastrowid
 
-            conn.commit()
+                # 插入订单项目
+                for item in CART:
+                    cursor.execute('''
+                    INSERT INTO order_items (order_id, item_name, price, quantity)
+                    VALUES (?, ?, ?, ?)
+                    ''', (order_id, item['name'], item['price'], item['quantity']))
 
-            # Print order summary
-            print("\nOrder Summary:")
-            print(f"Order ID: {order_id}")
-            print("Items ordered:")
-            for item in CART:
-                print(f"- {item['name']} - RM{item['price']} x {item['quantity']}")
-            print(f"\nTotal Amount: RM{total_amount}")
-            print("\nThe order has been submitted, thank you for your purchase!")
+                conn.commit()
 
-        except sqlite3.Error as e:
-            print(f"An error occurred while saving the order: {e}")
-        finally:
-            if conn:
-                conn.close()
+                # 显示订单确认
+                print("\n=== Order Confirmation ===")
+                print(f"Order ID: {order_id}")
+                print("\nItems ordered:")
+                for item in CART:
+                    print(f"- {item['name']}")
+                    print(f"  Quantity: {item['quantity']}")
+                    print(f"  Price per item: RM{item['price']}")
+                    print(f"  Subtotal: RM{item['price'] * item['quantity']}")
+                print(f"\nTotal Amount: RM{total_amount}")
+                print("\nThank you for your purchase!")
+                print("You can track your order status using the 'Track Order Status' option.")
 
-        CART.clear()
-    else:
-        print("The order has not been submitted.")
+                # 清空购物车
+                CART.clear()
+
+            except sqlite3.Error as e:
+                print(f"An error occurred while processing your order: {e}")
+                print("Please try again later or contact support.")
+            finally:
+                if conn:
+                    conn.close()
+                    
+        elif choice == '2':
+            print("\nReturning to cart...")
+            return
+        elif choice == '3':
+            print("\nCheckout cancelled.")
+            return
+        else:
+            print("\nInvalid choice. Checkout cancelled.")
+            
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        print("Please try again later or contact support.")
 
 
 # 1.1.8 查看订单状态
@@ -492,12 +508,15 @@ def track_order_status(username):
         cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
         user_id = cursor.fetchone()[0]
 
-        # 查询该用户的所有订单
+        # 查询该用户的所有订单及其商品
         cursor.execute('''
-        SELECT order_id, item_name, price, quantity, status 
-        FROM orders 
-        WHERE user_id = ?
-        ORDER BY order_id DESC
+        SELECT o.order_id, o.total_amount, o.status, o.order_date,
+                GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ')') as items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE o.user_id = ?
+        GROUP BY o.order_id
+        ORDER BY o.order_id DESC
         ''', (user_id,))
         
         orders = cursor.fetchall()
@@ -508,16 +527,16 @@ def track_order_status(username):
             
         print("\nYour order status:")
         for order in orders:
-            order_id, item, price, quantity, status = order
+            order_id, total_amount, status, order_date, items = order
             print(f"\nOrder ID: {order_id}")
-            print(f"Item: {item}")
-            print(f"Price: RM{price}")
-            print(f"Quantity: {quantity}")
-            print(f"Status: {status if status else 'pending'}")
+            print(f"Items: {items}")
+            print(f"Total Amount: RM{total_amount}")
+            print(f"Status: {status}")
+            print(f"Order Date: {order_date}")
             print("-" * 30)
             
     except sqlite3.Error as e:
-        print(f"check order status error: {e}")
+        print(f"Error checking order status: {e}")
     finally:
         if conn:
             conn.close()
@@ -534,13 +553,17 @@ def feedback(username):
         cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
         user_id = cursor.fetchone()[0]
 
-        # 获取用户最近的订单ID
+        # 获取用户最近的订单及其商品
         cursor.execute('''
-        SELECT order_id, item_name, price, quantity 
-        FROM orders 
-        WHERE user_id = ? 
-        ORDER BY order_id DESC 
-        LIMIT 1''', (user_id,))
+        SELECT o.order_id, o.total_amount, o.status,
+                GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ')') as items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE o.user_id = ?
+        GROUP BY o.order_id
+        ORDER BY o.order_id DESC
+        LIMIT 1
+        ''', (user_id,))
         
         latest_order = cursor.fetchone()
         
@@ -548,12 +571,21 @@ def feedback(username):
             print("No orders found. Please make an order first.")
             return
 
-        order_id = latest_order[0]
+        order_id, total_amount, status, items = latest_order
         print(f"\nProviding feedback for Order ID: {order_id}")
-        print(f"Item: {latest_order[1]}")
-        print(f"Price: RM{latest_order[2]}")
-        print(f"Quantity: {latest_order[3]}")
+        print(f"Items: {items}")
+        print(f"Total Amount: RM{total_amount}")
+        print(f"Status: {status}")
         
+        # 检查是否已经有反馈
+        cursor.execute('SELECT feedback FROM feedback WHERE order_id = ?', (order_id,))
+        existing_feedback = cursor.fetchone()
+        
+        if existing_feedback:
+            print("\nYou have already provided feedback for this order:")
+            print(f"Previous feedback: {existing_feedback[0]}")
+            return
+
         # 获取用户反馈
         feedback_text = input("\nPlease enter your feedback: ")
         
