@@ -2,12 +2,16 @@ from database import load_users
 from chef import food_list, drink_list
 import sqlite3
 import textwrap
-
+import os
 CART = []
 CURRENT_ORDER_ID = None
 
+def clear_screen():
+    os.system("cls")
+
 # 1.1.0 会员登入
 def member_login():
+    clear_screen()
     print("\n==== Member Login ====")
     while True:
         username = input("Please enter a username (or type 'undo' to go back): ")

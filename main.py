@@ -9,19 +9,50 @@ def clear_screen():
     os.system("cls")
 
 def register():
-    print("==== User Registration ====")
-    username = input("Please enter a username: ")
-    password = input("Please enter a password: ")
-    user_type = input("Please enter the user type (member/manager/chef/cashier): ")
-    if user_type not in ['member', 'manager', 'chef', 'cashier']:
-        print("Invalid user type, please try again.")
+    clear_screen()
+    print("\n╔══════════════════════════════════╗")
+    print("║        User Registration         ║")
+    print("╠══════════════════════════════════╣")
+    username = input("► Username: ")
+    password = input("► Password: ")
+    print("║ Select User Type:                ║")
+    print("║ 1. Member                        ║")
+    print("║ 2. Manager                       ║")
+    print("║ 3. Chef                          ║")
+    print("║ 4. Cashier                       ║")
+    print("╚══════════════════════════════════╝")
+    
+    type_choice = input("► ")
+    
+    # 用户类型映射
+    type_map = {
+        '1': 'member',
+        '2': 'manager',
+        '3': 'chef',
+        '4': 'cashier'
+    }
+    
+    user_type = type_map.get(type_choice)
+    
+    if not user_type:
+        print("\n╔══════════════════════════════════╗")
+        print("║      Invalid user type! ❌        ║")
+        print("╚══════════════════════════════════╝")
+        input("\nPress Enter to continue...")
         return
+        
     users = load_users()
     if any(user[0] == username for user in users):
-        print("Username already exists, please try another username.")
+        print("\n╔══════════════════════════════════╗")
+        print("║    Username already exists! ❌    ║")
+        print("╚══════════════════════════════════╝")
+        input("\nPress Enter to continue...")
     else:
         save_user(username, password, user_type)
-        print("Registration successful!")
+        print("\n╔══════════════════════════════════╗")
+        print("║   Registration successful! ✓      ║")
+        print("╚══════════════════════════════════╝")
+        input("\nPress Enter to continue...")
 
 def login():
     while True:
