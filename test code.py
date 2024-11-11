@@ -5,7 +5,6 @@ production_log = []
 equipment_log = []
 
 # track order ,pending,complete,cooking
-# user key exit 可以退出
 # 开一个database for receipt discount(结账界面,有用discount的在隔壁行显示用了多少)
 #order id 不重复when叫多个食物
 
@@ -34,19 +33,6 @@ def setup_database():
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
 
-    # Create orders table if it doesn't exist (removed DROP TABLE)
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS orders (
-        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        item_name TEXT NOT NULL,
-        price REAL NOT NULL,
-        quantity INTEGER NOT NULL,
-        status TEXT DEFAULT 'pending',
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    )
-    ''')
-
     # Create users table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
@@ -54,6 +40,30 @@ def setup_database():
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         user_type TEXT NOT NULL
+    )
+    ''')
+
+    # Create orders table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS orders (
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        total_amount REAL NOT NULL,
+        status TEXT DEFAULT 'pending',
+        order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+    ''')
+
+    # Create order_items table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS order_items (
+        item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER NOT NULL,
+        item_name TEXT NOT NULL,
+        price REAL NOT NULL,
+        quantity INTEGER NOT NULL,
+        FOREIGN KEY (order_id) REFERENCES orders(order_id)
     )
     ''')
 
@@ -157,7 +167,11 @@ def login():
 def member_login():
     print("\n==== Member Login ====")
     while True:
-        username = input("Please enter a username: ")
+        username = input("Please enter a username (or type 'return' to go back): ")
+        if username.lower() == 'return':
+            login()
+            return
+            
         password = input("Please enter a password: ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
@@ -185,8 +199,9 @@ def order_menu(username):
         print("4. Check out")
         print("5. Track order status")
         print("6. Provide feedback")
-        print("7. Exit")
-        choice = input("Please select an action (1-7): ")
+        print("7. delete order")
+        print("8. Exit")
+        choice = input("Please select an action (1-8): ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -200,9 +215,65 @@ def order_menu(username):
         elif choice == '6':
             feedback(username)
         elif choice == '7':
+            delete_order(username)
+        elif choice == '8':
             exit(username)
         else:
             print("Invalid choice, please try again.")
+
+
+def delete_order(username):
+    print("\n=== Delete Order ===")
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Get user_id
+        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        user_id = cursor.fetchone()[0]
+
+        # Get all orders for this user
+        cursor.execute('''
+            SELECT o.order_id, o.total_amount, o.status, GROUP_CONCAT(oi.item_name || ' x' || oi.quantity) as items
+            FROM orders o
+            LEFT JOIN order_items oi ON o.order_id = oi.order_id
+            WHERE o.user_id = ?
+            GROUP BY o.order_id
+            ORDER BY o.order_id DESC
+        ''', (user_id,))
+        
+        orders = cursor.fetchall()
+
+        if not orders:
+            print("No orders found.")
+            return
+
+        print("\nYour Orders:")
+        for order in orders:
+            order_id, total_amount, status, items = order
+            print(f"\nOrder ID: {order_id}")
+            print(f"Items: {items}")
+            print(f"Total Amount: RM{total_amount}")
+            print(f"Status: {status}")
+            print("-" * 30)
+
+        order_to_delete = input("\nEnter the Order ID to delete (or press Enter to cancel): ")
+        
+        if order_to_delete.strip() == '':
+            print("Deletion cancelled.")
+            return
+
+        if not order_to_delete.isdigit():
+            print("Invalid Order ID.")
+            return
+
+        order_id = int(order_to_delete)
+
+        # Check if order exists an
+    except sqlite3.Error as e:
+        print(f"An error occurred while accessing the database: {e}")
+    finally:
+        conn.close()
 
 
 # 1.1.2 登录后系统加载菜单
@@ -366,40 +437,46 @@ def checkout(username):
             conn = sqlite3.connect('users.db')
             cursor = conn.cursor()
 
-            # 获取 user_id
+            # Get user_id
             cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
             user_id = cursor.fetchone()[0]
 
-            # 存储所有新创建的订单ID
-            new_order_ids = []
+            # Calculate total amount
+            total_amount = sum(item['price'] * item['quantity'] for item in CART)
 
+            # Create main order record
+            cursor.execute('''
+            INSERT INTO orders (user_id, total_amount)
+            VALUES (?, ?)
+            ''', (user_id, total_amount))
+            
+            order_id = cursor.lastrowid
+
+            # Insert order items
             for item in CART:
-                # Save to database
                 cursor.execute('''
-                INSERT INTO orders (user_id, item_name, price, quantity)
+                INSERT INTO order_items (order_id, item_name, price, quantity)
                 VALUES (?, ?, ?, ?)
-                ''', (user_id, item['name'], item['price'], item['quantity']))
-                
-                # 获取最新插入的订单ID
-                new_order_ids.append(cursor.lastrowid)
-                print(f"Order: {item['name']} - RM{item['price']} x {item['quantity']}")
+                ''', (order_id, item['name'], item['price'], item['quantity']))
 
-            conn.commit()  # 确保提交事务
-            
-            # 打印所有新创建的订单ID
-            print("\nOrder IDs for your reference:")
-            for order_id in new_order_ids:
-                print(f"Order ID: {order_id}")
-            
+            conn.commit()
+
+            # Print order summary
+            print("\nOrder Summary:")
+            print(f"Order ID: {order_id}")
+            print("Items ordered:")
+            for item in CART:
+                print(f"- {item['name']} - RM{item['price']} x {item['quantity']}")
+            print(f"\nTotal Amount: RM{total_amount}")
             print("\nThe order has been submitted, thank you for your purchase!")
-            
+
         except sqlite3.Error as e:
             print(f"An error occurred while saving the order: {e}")
         finally:
             if conn:
-                conn.close()  # 确保关闭连接
+                conn.close()
 
-        CART.clear()  # Clear the shopping cart
+        CART.clear()
     else:
         print("The order has not been submitted.")
 
