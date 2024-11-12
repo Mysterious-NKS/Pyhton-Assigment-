@@ -2,18 +2,25 @@ from database import load_users
 from chef import food_list, drink_list
 import sqlite3
 import textwrap
-
+import os
 CART = []
+CURRENT_ORDER_ID = None
+
+def clear_screen():
+    os.system("cls")
 
 # 1.1.0 会员登入
 def member_login():
-    print("\n==== Member Login ====")
+    clear_screen()
+    print("\n╔══════════════════════════════════╗")
+    print("║        Member Login              ║")
+    print("╚══════════════════════════════════╝")
     while True:
-        username = input("Please enter a username (or type 'undo' to go back): ")
+        username = input("Please enter a username (type 'undo' to go back) ► ")
         if username.lower() == 'undo':
             return
             
-        password = input("Please enter a password: ")
+        password = input("Please enter a password ► ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
 
@@ -31,15 +38,17 @@ def member_login():
 
 # 1.1.1   登入了可以干嘛
 def order_menu(username):
-    print("==== Member Menu ====")
     while True:
-        print("\n1. Browse menu")
+        print("\n╔══════════════════════════════════╗")
+        print("║        Member Menu               ║")
+        print("╚══════════════════════════════════╝")
+        print("1. Browse menu")
         print("2. view and modify cart")
         print("3. checkout")
         print("4. track order status")
         print("5. provide feedback")
         print("6. Exit")
-        choice = input("Please select an action (1-6): ")
+        choice = input("Please select an action (1-6) ► ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -71,7 +80,9 @@ def load_menu():
 
 # 1.1.3 登入后看菜单
 def display_menu(menu):
-    print("\n=== MENU ===")
+    print("\n╔══════════════════════════════════╗")
+    print("║            MENU                  ║")
+    print("╚══════════════════════════════════╝")
     
     print("\nFood:")
     print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
@@ -125,7 +136,6 @@ def display_menu(menu):
 
     print(f"+{'-' * 5}+{'-' * 15}+{'-' * 12}+{'-' * 52}+")
     print("")
-
 
 
 # 1.1.4 会员点单
@@ -196,6 +206,7 @@ def view_and_modify_cart():
 
 # 1.1.7 下单
 def checkout(username):
+    global CURRENT_ORDER_ID
     if not CART:
         print("The shopping cart is empty and cannot be checked out.")
         return
@@ -226,7 +237,7 @@ def checkout(username):
                 cursor = conn.cursor()
 
                 # 获取用户ID
-                cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+                cursor.execute('SELECT rowid FROM users WHERE username = ?', (username,))
                 user_id = cursor.fetchone()[0]
 
                 # 创建主订单记录
@@ -235,20 +246,21 @@ def checkout(username):
                 VALUES (?, ?)
                 ''', (user_id, total_amount))
                 
-                order_id = cursor.lastrowid
+                # Store the order ID immediately after insertion
+                CURRENT_ORDER_ID = cursor.lastrowid
 
                 # 插入订单项目
                 for item in CART:
                     cursor.execute('''
                     INSERT INTO order_items (order_id, item_name, price, quantity)
                     VALUES (?, ?, ?, ?)
-                    ''', (order_id, item['name'], item['price'], item['quantity']))
+                    ''', (CURRENT_ORDER_ID, item['name'], item['price'], item['quantity']))
 
                 conn.commit()
 
                 # 显示订单确认
                 print("\n=== Order Confirmation ===")
-                print(f"Order ID: {order_id}")
+                print(f"Order ID: {CURRENT_ORDER_ID}")
                 print("\nItems ordered:")
                 for item in CART:
                     print(f"- {item['name']}")
@@ -259,10 +271,11 @@ def checkout(username):
                 print("\nThank you for your purchase!")
                 print("You can track your order status using the 'Track Order Status' option.")
 
-                # 清空购物车
+                # Clear cart but keep CURRENT_ORDER_ID
                 CART.clear()
 
             except sqlite3.Error as e:
+                CURRENT_ORDER_ID = None  # Reset on error
                 print(f"An error occurred while processing your order: {e}")
                 print("Please try again later or contact support.")
             finally:
@@ -285,41 +298,38 @@ def checkout(username):
 
 # 1.1.8 查看订单状态
 def track_order_status(username):
+    if CURRENT_ORDER_ID is None:
+        print("\nNo active order to track. Please make an order first.")
+        return
+        
     print("=== Order Tracking ===")
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # 获取用户ID
-        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
-        user_id = cursor.fetchone()[0]
-
-        # 查询该用户的所有订单及其商品
         cursor.execute('''
         SELECT o.order_id, o.total_amount, o.status, o.order_date,
                 GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ')') as items
         FROM orders o
         LEFT JOIN order_items oi ON o.order_id = oi.order_id
-        WHERE o.user_id = ?
+        WHERE o.order_id = ?
         GROUP BY o.order_id
-        ORDER BY o.order_id DESC
-        ''', (user_id,))
+        ''', (CURRENT_ORDER_ID,))
         
-        orders = cursor.fetchall()
+        order = cursor.fetchone()
         
-        if not orders:
-            print("You have no order records yet.")
+        if not order:
+            print("Order not found.")
             return
             
         print("\nYour order status:")
-        for order in orders:
-            order_id, total_amount, status, order_date, items = order
-            print(f"\nOrder ID: {order_id}")
-            print(f"Items: {items}")
-            print(f"Total Amount: RM{total_amount}")
-            print(f"Status: {status}")
-            print(f"Order Date: {order_date}")
-            print("-" * 30)
+        order_id, total_amount, status, order_date, items = order
+        print(f"\nOrder ID: {order_id}")
+        print(f"Items: {items}")
+        print(f"Total Amount: RM{total_amount}")
+        print(f"Status: {status}")
+        print(f"Order Date: {order_date}")
+        print("-" * 30)
             
     except sqlite3.Error as e:
         print(f"Error checking order status: {e}")
@@ -336,7 +346,7 @@ def feedback(username):
         cursor = conn.cursor()
 
         # 获取用户ID
-        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        cursor.execute('SELECT rowid FROM users WHERE username = ?', (username,))
         user_id = cursor.fetchone()[0]
 
         # 获取用户最近的订单及其商品
