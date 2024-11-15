@@ -390,7 +390,9 @@ def view_equip_i():
 # 1.2.11 厨师设置
 def chef_settings():
     while True:
-        print("==== Chef Settings ====")
+        print("\n╔═══════════════════════════════╗")
+        print("║         Chef Settings         ║")
+        print("╚═══════════════════════════════╝")
         print("1. Add Food/Drink")
         print("2. Update Food/Drink")
         print("3. Delete Food/Drink")
@@ -401,6 +403,7 @@ def chef_settings():
         print("8. Report Equipment Issue")
         print("9. View Equipment Issues")
         print("0. Exit")
+        print("")
 
         choice = input("Choose an option: ")
         if choice == "1":
