@@ -2,6 +2,7 @@ from chef import food_list, drink_list
 from database import load_users
 from chef import view_menu
 from member import clear_screen
+from member import display_menu
 
 current_order = {}
 sales_records = []
@@ -39,7 +40,7 @@ def cashier_menu():
         choice = input("Choose an option: ")
 
         if choice == "1":
-            view_menu()
+            product_display_menu()
         elif choice == "2":
             take_order_menu()
         elif choice == "3":
@@ -58,7 +59,7 @@ def cashier_menu():
 
 def product_display_menu():
     print("\n==== Product Display ====")
-    view_menu()
+    display_menu()
     input("\nPress Enter to return to the Cashier Menu.")
 
 # Initialize a dictionary to store the current order
@@ -68,7 +69,6 @@ def take_order_menu():
     print("==== Take Order ====")
     while True:
         all_items = food_list + drink_list
-        
         print("Available items to order:")
         for idx, item in enumerate(all_items, 1):
             print(f"{idx}. {item['name']} - RM{item['price']} ({item['recipe']})")
