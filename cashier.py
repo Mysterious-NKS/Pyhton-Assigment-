@@ -1,13 +1,17 @@
 from chef import food_list, drink_list
 from database import load_users
 from chef import view_menu
+from member import clear_screen
 
 current_order = {}
 sales_records = []
 discounts = {}
 
 def cashier_login():
-    print("\n==== Cashier Login ====")
+    clear_screen()
+    print("\n╔══════════════════════════════════╗")
+    print("║        Cashier Login              ║")
+    print("╚══════════════════════════════════╝")
     while True:
         username = input("Please enter a username: ")
         password = input("Please enter a password: ")
@@ -23,7 +27,7 @@ def cashier_login():
 
 def cashier_menu():
     global current_order  # Move this to the beginning of the function
-
+    clear_screen()
     while True:
         print("\n==== Cashier Menu ====")
         print("1. View Menu")
