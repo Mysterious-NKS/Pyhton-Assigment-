@@ -1,6 +1,7 @@
 from database import load_users
 production_log = []
 equipment_log = []
+import os
 
 def chef_login():
     print("\n==== Chef Login ====")
