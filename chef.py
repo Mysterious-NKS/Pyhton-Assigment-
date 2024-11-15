@@ -2,10 +2,16 @@ from database import load_users
 production_log = []
 equipment_log = []
 import os
+<<<<<<< HEAD
 #123
 
 def clear_screen():
     os.system("cls")
+=======
+def clear_screen():
+    os.system("cls")
+
+>>>>>>> 330316b1bfda840720b7dbe9bb5c1f10239cc836
 
 def chef_login():
     print("\n==== Chef Login ====")
@@ -81,7 +87,11 @@ food_list = [
 ]
 
 drink_list = [
+<<<<<<< HEAD
     {"name": "Tea", "price": 4, "recipe": "Healthy fresh herbs"},
+=======
+    {"name": "Tea", "price": 4, "recipe": "Tea bag with water"},
+>>>>>>> 330316b1bfda840720b7dbe9bb5c1f10239cc836
     {"name": "Water", "price": 1.50, "recipe": "Plain water"}
 ]
 
@@ -360,9 +370,11 @@ def checking_inv():
             print(footer, end="")
             file.write(footer)
             print("Full inventory has been saved to 'inventory.txt'.")
+            print("")
 
         else:
             print("Invalid choice. Please enter 'specific' or 'all'.")
+            print("")
 
 
 # 1.2.7 记录生产
@@ -387,11 +399,13 @@ def rec_production():
     })
 
     print(f"Production record for '{food_name}' added successfully!\n")
+    print("")
 
 # 1.2.8 查看生产
 def view_production():
     """View and save the production log."""
     print("==== Production Log ====")
+<<<<<<< HEAD
 
     # Open the production.txt file in write mode
     with open("production.txt", "w") as file:
@@ -421,6 +435,18 @@ def view_production():
 
     print("Production log has been saved to 'production.txt'.")
     print("")
+=======
+    if not production_log:
+        print("No production records available.")
+        print("")
+    else:
+        for record in production_log:
+            print(f"Dish: {record['dish_name']}")
+            print(f"Batch Number: {record['batch_number']}")
+            print(f"Quantity: {record['quantity']}")
+            print(f"Expiration Date: {record['expiration_date']}")
+            print("-" * 30)
+>>>>>>> 330316b1bfda840720b7dbe9bb5c1f10239cc836
 
 # 1.2.9 报告设备问题
 def report_equip_i():
@@ -453,6 +479,7 @@ def chef_settings():
         print("\n╔═══════════════════════════════╗")
         print("║         Chef Settings         ║")
         print("╚═══════════════════════════════╝")
+<<<<<<< HEAD
 
         print("1. Add Food/Drink              ")
         print("2. Update Food/Drink           ")
@@ -466,6 +493,19 @@ def chef_settings():
         print("0. Exit                        ")
         print("")
 
+=======
+        print("1. Add Food/Drink")
+        print("2. Update Food/Drink")
+        print("3. Delete Food/Drink")
+        print("4. View Menu")
+        print("5. Check Inventory")
+        print("6. Record Production")
+        print("7. View production")
+        print("8. Report Equipment Issue")
+        print("9. View Equipment Issues")
+        print("0. Exit")
+        print("")
+>>>>>>> 330316b1bfda840720b7dbe9bb5c1f10239cc836
 
         choice = input("Choose an option: ")
         if choice == "1":

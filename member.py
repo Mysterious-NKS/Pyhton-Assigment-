@@ -149,7 +149,7 @@ def browse_menu():
         # 创建一个组合列表，包含所有食物和饮料
         all_items = food_list + drink_list
         display_menu(menu)
-        choice = input("\nPlease enter the item number to add it to your cart, or press enter to return to the main menu: ")
+        choice = input("\nEnter the item number to add it to your cart, or press enter back to the main menu: ")
         
         if choice == '':
             break
