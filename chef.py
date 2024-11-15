@@ -2,16 +2,9 @@ from database import load_users
 production_log = []
 equipment_log = []
 import os
-<<<<<<< HEAD
-#123
 
 def clear_screen():
     os.system("cls")
-=======
-def clear_screen():
-    os.system("cls")
-
->>>>>>> 330316b1bfda840720b7dbe9bb5c1f10239cc836
 
 def chef_login():
     print("\n==== Chef Login ====")
