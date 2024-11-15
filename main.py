@@ -7,7 +7,6 @@ import os
 
 def clear_screen():
     os.system("cls")
-    clear_screen()
 
 def register():
     clear_screen()
