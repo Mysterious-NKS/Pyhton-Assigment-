@@ -2,6 +2,9 @@ from database import load_users
 production_log = []
 equipment_log = []
 import os
+def clear_screen():
+    os.system("cls")
+
 
 def chef_login():
     print("\n==== Chef Login ====")
@@ -423,6 +426,7 @@ def view_equip_i():
 
 # 1.2.11 厨师设置
 def chef_settings():
+    clear_screen()
     while True:
         print("\n╔═══════════════════════════════╗")
         print("║         Chef Settings         ║")
