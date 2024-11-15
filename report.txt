@@ -1,2 +1,4 @@
 ==== Equipment Issues Log ====
-No equipment issues reported.
+Equipment: apu
+Issue: broken
+------------------------------
