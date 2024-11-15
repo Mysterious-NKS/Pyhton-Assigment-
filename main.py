@@ -85,7 +85,7 @@ def main():
     while True:
         clear_screen()
         print("\n╔══════════════════════════╗")
-        print("║  Restaurant System       ║")
+        print("║  LIANG Restaurant        ║")
         print("╠══════════════════════════╣")
         print("║  Please select:          ║")
         print("║  1. Register             ║")
