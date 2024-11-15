@@ -73,7 +73,7 @@ def save_menu_to_file(food_list, drink_list):
 food_list = [
     {"name": "Burger", "price": 15, "recipe": "Patty, burger bun, lettuce, ketchup"},
     {"name": "Pizza", "price": 20, "recipe": "Flour, mozzarella cheese, pepperoni, onions"},
-    {"name": "Salad", "price": 10, "recipe": "Sliced tomatoes, sliced avacado, sliced cuccumber, mustard"},
+    {"name": "Salad", "price": 10, "recipe": "Sliced tomatoes, sliced avocado, sliced cucumber, mustard"},
     {"name": "Sushi", "price": 25, "recipe": "Rice, salmon fish, seaweeds"},
     {"name": "Tacos", "price": 12, "recipe": "Onions, chopped chicken, chili powder, lettuce, diced tomatoes, shredded cheese"},
     {"name": "Pasta", "price": 18, "recipe": "Fettuccine , grilled chicken, tomato sauce, meatballs, garnish"}
