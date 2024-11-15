@@ -278,57 +278,88 @@ def checking_inv():
             "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
         if choice == 'specific':
-            check_ing = input("Enter the ingredient: ").strip().lower()
+            check_ing = input("Enter the ingredient: ").strip()
             if check_ing in food_inv:
                 quantity = food_inv[check_ing]["quantity"]
                 unit = food_inv[check_ing]["unit"]
 
-                # Write header and specific ingredient info to file
-                file.write("==== Inventory Check ====\n")
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
-                file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                # Define header and specific ingredient info
+                header = (
+                    "==== Inventory Check ====\n"
+                    f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                    f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
+                    f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                )
+
+                # Write to both file and console
+                print(header, end="")
+                file.write(header)
 
                 # Wrap unit text if it's too long
                 if len(unit) > 50:
                     wrapped_unit = textwrap.fill(unit, width=50)
                     wrapped_lines = wrapped_unit.split('\n')
-                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |\n")
+                    row = f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
                     for line in wrapped_lines[1:]:
-                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                        wrapped_row = f"| {' ':<20} | {' ':<10} | {line:<50} |\n"
+                        print(wrapped_row, end="")
+                        file.write(wrapped_row)
                 else:
-                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |\n")
+                    row = f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
 
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                footer = f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                print(footer, end="")
+                file.write(footer)
                 print(f"'{check_ing.capitalize()}' has been saved to 'inventory.txt'.")
             else:
-                print(f"'{check_ing.capitalize()}' not available in the inventory.")
-                file.write(f"'{check_ing.capitalize()}' not available in the inventory.\n")
+                message = f"'{check_ing.capitalize()}' not available in the inventory.\n"
+                print(message)
+                file.write(message)
 
         elif choice == 'all':
-            # Write header for full inventory list
-            file.write("==== Inventory List ====\n")
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
-            file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            # Define header for full inventory list
+            header = (
+                "==== Inventory List ====\n"
+                f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
+                f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+            )
 
-            # Write each item in the inventory to file
+            # Write header to both file and console
+            print(header, end="")
+            file.write(header)
+
+            # Write each item in the inventory to both file and console
             for ingredient, details in food_inv.items():
                 unit = details['unit']
                 if len(unit) > 50:
                     wrapped_unit = textwrap.fill(unit, width=50)
                     wrapped_lines = wrapped_unit.split('\n')
-                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |\n")
+                    row = f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
                     for line in wrapped_lines[1:]:
-                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                        wrapped_row = f"| {' ':<20} | {' ':<10} | {line:<50} |\n"
+                        print(wrapped_row, end="")
+                        file.write(wrapped_row)
                 else:
-                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |\n")
+                    row = f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
 
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            footer = f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+            print(footer, end="")
+            file.write(footer)
             print("Full inventory has been saved to 'inventory.txt'.")
+            print("")
 
         else:
             print("Invalid choice. Please enter 'specific' or 'all'.")
+            print("")
 
 
 # 1.2.7 记录生产
@@ -349,12 +380,14 @@ def rec_production():
         "expiration_date": expiration_date
         })
     print(f"Production record for '{food_name}' added successfully!\n")
+    print("")
 
 # 1.2.8 查看生产
 def view_production():
     print("==== Production Log ====")
     if not production_log:
         print("No production records available.")
+        print("")
     else:
         for record in production_log:
             print(f"Dish: {record['dish_name']}")
