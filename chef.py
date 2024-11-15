@@ -10,6 +10,7 @@ def clear_screen():
 def chef_login():
     print("\n==== Chef Login ====")
     while True:
+        print("Type 'undo' to go back")
         username = input("Please enter a username: ")
         password = input("Please enter a password: ")
         users = load_users()
@@ -19,6 +20,9 @@ def chef_login():
             print("Login successful!")
             chef_settings()
             break
+        elif:
+            if username.lower() == 'undo':
+                return
         else:
             print("Username or password is incorrect, or you are not a chef. Please try again.")
             
