@@ -16,8 +16,8 @@ def member_login():
     print("║        Member Login              ║")
     print("╚══════════════════════════════════╝")
     while True:
-        username = input("Please enter a username (type 'undo' to go back) ► ")
-        if username.lower() == 'undo':
+        username = input("Please enter a username (press enter to undo) ► ")
+        if username.lower() == '':
             return
             
         password = input("Please enter a password ► ")
