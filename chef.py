@@ -154,6 +154,7 @@ def add_recipe():
 
         save_menu_to_file(food_list, drink_list)  # Save the updated menu
         print(f"Menu saved to file after adding '{food}'.")
+        print("")
 
 # 1.2.3 删除菜品
 def remove_recipe():
@@ -175,6 +176,7 @@ def remove_recipe():
                 return
 
     print("Recipe not found.")
+    print("")
 
 
 # 1.2.4 更新菜品
@@ -215,6 +217,7 @@ def update_menu():
                 return
 
     print(f"'{update_txt}' not found in the food or drink lists.\n")
+    print("")
 
 
 # 1.2.5 查看菜品
@@ -448,6 +451,7 @@ def report_equip_i():
         file.write(f"{'-' * 30}\n")
 
     print(f"Issue reported for '{equipment_name}' successfully!\n")
+    print("")
 
 # 1.2.10 查看设备问题
 def view_equip_i():
@@ -478,6 +482,7 @@ def view_equip_i():
                 file.write(issue_text)
 
     print("Equipment issues log has been saved to 'report.txt'.")
+    print("")
 
 
 # 1.2.11 厨师设置
