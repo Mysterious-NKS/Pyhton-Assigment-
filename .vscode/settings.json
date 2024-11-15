@@ -1,7 +1,11 @@
 {
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#1a1a1a",
+<<<<<<< HEAD
+        "activityBar.background": "#1a1a1a",
+=======
         "activityBar.background": "#1a1a1a",//左栏
+>>>>>>> ed36c38fde22269adf7b8d67892352745e738d8c
         "activityBar.foreground": "#e7e7e7",
         "activityBar.inactiveForeground": "#e7e7e799",
         "activityBarBadge.background": "#606020",
