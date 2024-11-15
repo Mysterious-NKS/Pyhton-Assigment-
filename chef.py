@@ -423,16 +423,6 @@ def view_production():
 
     print("Production log has been saved to 'production.txt'.")
     print("")
-    if not production_log:
-        print("No production records available.")
-        print("")
-    else:
-        for record in production_log:
-            print(f"Dish: {record['dish_name']}")
-            print(f"Batch Number: {record['batch_number']}")
-            print(f"Quantity: {record['quantity']}")
-            print(f"Expiration Date: {record['expiration_date']}")
-            print("-" * 30)
 
 
 # 1.2.9 报告设备问题
