@@ -1,21 +1,2 @@
 {
-    "workbench.colorCustomizations": {
-        "activityBar.activeBackground": "#1a1a1a",//file back color
-        "activityBar.background": "#1a1a1a",//左栏
-        "activityBar.foreground": "#e7e7e7",//file icon color
-        "activityBar.inactiveForeground": "#e7e7e799",//左栏icon color
-        "activityBarBadge.background": "#606020",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "commandCenter.border": "#e7e7e799",
-        "sash.hoverBorder": "#1a1a1a",
-        "statusBar.background": "#057a3f",//底栏        
-        "statusBar.foreground": "#e7e7e7",//底栏字体色
-        "statusBarItem.hoverBackground": "#1a1a1a",//底栏选中颜色
-        "statusBarItem.remoteBackground": "#000000",//左下<>背景颜色
-        "statusBarItem.remoteForeground": "#e7e7e7",//左下字体颜色
-        "titleBar.activeBackground": "#000000",//顶栏背景
-        "titleBar.activeForeground": "#e7e7e7",//顶栏字体
-        "titleBar.inactiveBackground": "#00000099",
-        "titleBar.inactiveForeground": "#e7e7e799"
-    }
 }
