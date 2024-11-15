@@ -76,8 +76,8 @@ food_list = [
 ]
 
 drink_list = [
-    {"name": "Tea", "price": 4, "recipe": "A warm tea from hometown"},
-    {"name": "Water", "price": 1.50, "recipe": "Average fresh water"}
+    {"name": "Tea", "price": 4, "recipe": "Tea bag with water"},
+    {"name": "Water", "price": 1.50, "recipe": "Plain water"}
 ]
 
 food_inv = {
