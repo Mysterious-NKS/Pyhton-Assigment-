@@ -503,4 +503,3 @@ def chef_settings():
         else:
             print("Invalid choice, please try again.")
 
-
