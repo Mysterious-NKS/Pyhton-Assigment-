@@ -1,19 +1,27 @@
 from database import load_users
 production_log = []
 equipment_log = []
+import os
+#ee
+
+def clear_screen():
+    os.system("cls")
 
 def chef_login():
     print("\n==== Chef Login ====")
     while True:
-        username = input("Please enter a username: ")
+        username = input("Please enter a username (type 'undo' to go back) ► ")
+        if username.lower() == 'undo':
+            return
         password = input("Please enter a password: ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
         user = user_dict.get(username)
-        if user and user[1] == password and user[2] == 'chef':
-            print("Login successful!")
-            chef_settings()
-            break
+        if user:
+            if user[1] == password and user[2] == 'chef':
+                print("Login successful!")
+                chef_settings()
+                break
         else:
             print("Username or password is incorrect, or you are not a chef. Please try again.")
             
@@ -69,15 +77,15 @@ def save_menu_to_file(food_list, drink_list):
 food_list = [
     {"name": "Burger", "price": 15, "recipe": "Patty, burger bun, lettuce, ketchup"},
     {"name": "Pizza", "price": 20, "recipe": "Flour, mozzarella cheese, pepperoni, onions"},
-    {"name": "Salad", "price": 10, "recipe": "Sliced tomatoes, sliced avacado, sliced cuccumber, mustard"},
+    {"name": "Salad", "price": 10, "recipe": "Sliced tomatoes, sliced avocado, sliced cucumber, mustard"},
     {"name": "Sushi", "price": 25, "recipe": "Rice, salmon fish, seaweeds"},
     {"name": "Tacos", "price": 12, "recipe": "Onions, chopped chicken, chili powder, lettuce, diced tomatoes, shredded cheese"},
     {"name": "Pasta", "price": 18, "recipe": "Fettuccine , grilled chicken, tomato sauce, meatballs, garnish"}
 ]
 
 drink_list = [
-    {"name": "Tea", "price": 4, "recipe": "A warm tea from hometown"},
-    {"name": "Water", "price": 1.50, "recipe": "Average fresh water"}
+    {"name": "Tea", "price": 4, "recipe": "Tea bag with water"},
+    {"name": "Water", "price": 1.50, "recipe": "Plain water"}
 ]
 
 food_inv = {
@@ -146,6 +154,7 @@ def add_recipe():
 
         save_menu_to_file(food_list, drink_list)  # Save the updated menu
         print(f"Menu saved to file after adding '{food}'.")
+        print("")
 
 # 1.2.3 删除菜品
 def remove_recipe():
@@ -167,6 +176,7 @@ def remove_recipe():
                 return
 
     print("Recipe not found.")
+    print("")
 
 
 # 1.2.4 更新菜品
@@ -207,6 +217,7 @@ def update_menu():
                 return
 
     print(f"'{update_txt}' not found in the food or drink lists.\n")
+    print("")
 
 
 # 1.2.5 查看菜品
@@ -278,129 +289,220 @@ def checking_inv():
             "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
         if choice == 'specific':
-            check_ing = input("Enter the ingredient: ").strip().lower()
+            check_ing = input("Enter the ingredient: ").strip()
             if check_ing in food_inv:
                 quantity = food_inv[check_ing]["quantity"]
                 unit = food_inv[check_ing]["unit"]
 
-                # Write header and specific ingredient info to file
-                file.write("==== Inventory Check ====\n")
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
-                file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                # Define header and specific ingredient info
+                header = (
+                    "==== Inventory Check ====\n"
+                    f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                    f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
+                    f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                )
+
+                # Write to both file and console
+                print(header, end="")
+                file.write(header)
 
                 # Wrap unit text if it's too long
                 if len(unit) > 50:
                     wrapped_unit = textwrap.fill(unit, width=50)
                     wrapped_lines = wrapped_unit.split('\n')
-                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |\n")
+                    row = f"| {check_ing.capitalize():<20} | {quantity:<10} | {wrapped_lines[0]:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
                     for line in wrapped_lines[1:]:
-                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                        wrapped_row = f"| {' ':<20} | {' ':<10} | {line:<50} |\n"
+                        print(wrapped_row, end="")
+                        file.write(wrapped_row)
                 else:
-                    file.write(f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |\n")
+                    row = f"| {check_ing.capitalize():<20} | {quantity:<10} | {unit:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
 
-                file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+                footer = f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                print(footer, end="")
+                file.write(footer)
                 print(f"'{check_ing.capitalize()}' has been saved to 'inventory.txt'.")
             else:
-                print(f"'{check_ing.capitalize()}' not available in the inventory.")
-                file.write(f"'{check_ing.capitalize()}' not available in the inventory.\n")
+                message = f"'{check_ing.capitalize()}' not available in the inventory.\n"
+                print(message)
+                file.write(message)
 
         elif choice == 'all':
-            # Write header for full inventory list
-            file.write("==== Inventory List ====\n")
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
-            file.write(f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n")
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            # Define header for full inventory list
+            header = (
+                "==== Inventory List ====\n"
+                f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+                f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
+                f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+            )
 
-            # Write each item in the inventory to file
+            # Write header to both file and console
+            print(header, end="")
+            file.write(header)
+
+            # Write each item in the inventory to both file and console
             for ingredient, details in food_inv.items():
                 unit = details['unit']
                 if len(unit) > 50:
                     wrapped_unit = textwrap.fill(unit, width=50)
                     wrapped_lines = wrapped_unit.split('\n')
-                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |\n")
+                    row = f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {wrapped_lines[0]:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
                     for line in wrapped_lines[1:]:
-                        file.write(f"| {' ':<20} | {' ':<10} | {line:<50} |\n")
+                        wrapped_row = f"| {' ':<20} | {' ':<10} | {line:<50} |\n"
+                        print(wrapped_row, end="")
+                        file.write(wrapped_row)
                 else:
-                    file.write(f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |\n")
+                    row = f"| {ingredient.capitalize():<20} | {details['quantity']:<10} | {unit:<50} |\n"
+                    print(row, end="")
+                    file.write(row)
 
-            file.write(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n")
+            footer = f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
+            print(footer, end="")
+            file.write(footer)
             print("Full inventory has been saved to 'inventory.txt'.")
+            print("")
 
         else:
             print("Invalid choice. Please enter 'specific' or 'all'.")
+            print("")
 
 
 # 1.2.7 记录生产
 def rec_production():
+    """Record a production log."""
     food_name = input("Enter the name of the food or drink produced: ")
-    batch_number = input("Enter batch number food or drink (required 10 characters) : ")
+    batch_number = input("Enter batch number food or drink (required 10 characters): ")
+
     if len(batch_number) != 10:
-        print("Batch number must be 10 characters or fewer. Please try again.")
+        print("Batch number must be exactly 10 characters. Please try again.")
         return
 
     quantity = input("Enter production quantity: ")
     expiration_date = input("Enter expiration date (YYYY-MM-DD): ")
 
+    # Append to production log
     production_log.append({
         "food_name": food_name,
         "batch_number": batch_number,
         "quantity": quantity,
         "expiration_date": expiration_date
-        })
+    })
+
     print(f"Production record for '{food_name}' added successfully!\n")
+    print("")
 
 # 1.2.8 查看生产
 def view_production():
+    """View and save the production log."""
     print("==== Production Log ====")
-    if not production_log:
-        print("No production records available.")
-    else:
-        for record in production_log:
-            print(f"Dish: {record['dish_name']}")
-            print(f"Batch Number: {record['batch_number']}")
-            print(f"Quantity: {record['quantity']}")
-            print(f"Expiration Date: {record['expiration_date']}")
-            print("-" * 30)
+    # Open the production.txt file in write mode
+    with open("production.txt", "w") as file:
+        # Header for the file
+        file.write("==== Production Log ====\n")
+
+        if not production_log:
+            no_records_message = "No production records available."
+            print(no_records_message)
+            file.write(no_records_message + "\n")
+        else:
+            for record in production_log:
+                # Create formatted output for each record
+                record_text = (
+                    f"Dish: {record['food_name']}\n"
+                    f"Batch Number: {record['batch_number']}\n"
+                    f"Quantity: {record['quantity']}\n"
+                    f"Expiration Date: {record['expiration_date']}\n"
+                    f"{'-' * 30}\n"
+                )
+
+                # Display record in console
+                print(record_text, end="")
+
+                # Save record to the file
+                file.write(record_text)
+
+    print("Production log has been saved to 'production.txt'.")
+    print("")
+
 
 # 1.2.9 报告设备问题
 def report_equip_i():
+    """Report an issue with equipment."""
     equipment_name = input("Enter equipment name: ")
     issue_description = input("Describe the malfunction or maintenance need: ")
 
+    # Append to the equipment log
     equipment_log.append({
         "equipment_name": equipment_name,
         "issue_description": issue_description
     })
-    print(f"Issue reported for '{equipment_name}' successfully!\n")
 
+    # Save the new issue to the report.txt file
+    with open("report.txt", "a") as file:
+        file.write("==== New Equipment Issue ====\n")
+        file.write(f"Equipment: {equipment_name}\n")
+        file.write(f"Issue: {issue_description}\n")
+        file.write(f"{'-' * 30}\n")
+
+    print(f"Issue reported for '{equipment_name}' successfully!\n")
+    print("")
 
 # 1.2.10 查看设备问题
 def view_equip_i():
     print("==== Equipment Issues Log ====")
-    if not equipment_log:
-        print("No equipment issues reported.")
-    else:
-        for issue in equipment_log:
-            print(f"Equipment: {issue['equipment_name']}")
-            print(f"Issue: {issue['issue_description']}")
-            print("-" * 30)
+
+    # Open the report.txt file in write mode to overwrite with the complete log
+    with open("report.txt", "w") as file:
+        # Header for the file
+        file.write("==== Equipment Issues Log ====\n")
+
+        if not equipment_log:
+            no_issues_message = "No equipment issues reported."
+            print(no_issues_message)
+            file.write(no_issues_message + "\n")
+        else:
+            for issue in equipment_log:
+                # Create formatted output for each issue
+                issue_text = (
+                    f"Equipment: {issue['equipment_name']}\n"
+                    f"Issue: {issue['issue_description']}\n"
+                    f"{'-' * 30}\n"
+                )
+
+                # Display issue in console
+                print(issue_text, end="")
+
+                # Save issue to the file
+                file.write(issue_text)
+
+    print("Equipment issues log has been saved to 'report.txt'.")
+    print("")
 
 
 # 1.2.11 厨师设置
 def chef_settings():
+    clear_screen()
     while True:
-        print("==== Chef Settings ====")
-        print("1. Add Food/Drink")
-        print("2. Update Food/Drink")
-        print("3. Delete Food/Drink")
-        print("4. View Menu")
-        print("5. Check Inventory")
-        print("6. Record Production")
-        print("7. View production")
-        print("8. Report Equipment Issue")
-        print("9. View Equipment Issues")
-        print("0. Exit")
+        print("\n╔═══════════════════════════════╗")
+        print("║         Chef Settings         ║")
+        print("╚═══════════════════════════════╝")
+        print("1. Add Food/Drink              ")
+        print("2. Update Food/Drink           ")
+        print("3. Delete Food/Drink           ")
+        print("4. View Menu                   ")
+        print("5. Check Inventory             ")
+        print("6. Record Production           ")
+        print("7. View production             ")
+        print("8. Report Equipment Issue      ")
+        print("9. View Equipment Issues       ")
+        print("0. Exit                        ")
+        print("")
 
         choice = input("Choose an option: ")
         if choice == "1":
@@ -426,3 +528,4 @@ def chef_settings():
             break
         else:
             print("Invalid choice, please try again.")
+

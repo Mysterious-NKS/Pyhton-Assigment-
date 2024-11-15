@@ -16,8 +16,8 @@ def member_login():
     print("║        Member Login              ║")
     print("╚══════════════════════════════════╝")
     while True:
-        username = input("Please enter a username (type 'undo' to go back) ► ")
-        if username.lower() == 'undo':
+        username = input("Please enter a username (press enter to undo) ► ")
+        if username.lower() == '':
             return
             
         password = input("Please enter a password ► ")
@@ -38,6 +38,7 @@ def member_login():
 
 # 1.1.1   登入了可以干嘛
 def order_menu(username):
+    clear_screen()
     while True:
         print("\n╔══════════════════════════════════╗")
         print("║        Member Menu               ║")
@@ -48,7 +49,7 @@ def order_menu(username):
         print("4. track order status")
         print("5. provide feedback")
         print("6. Exit")
-        choice = input("Please select an action (1-6) ► ")
+        choice = input("\nPlease select an action (1-6) ► ")
         if choice == '1':
             browse_menu()
         elif choice == '2':
@@ -140,6 +141,7 @@ def display_menu(menu):
 
 # 1.1.4 会员点单
 def browse_menu():
+    clear_screen()
     menu = load_menu()
     if not menu:
         print("The menu is empty and cannot be browsed.")
@@ -149,7 +151,7 @@ def browse_menu():
         # 创建一个组合列表，包含所有食物和饮料
         all_items = food_list + drink_list
         display_menu(menu)
-        choice = input("\nPlease enter the item number to add it to your cart, or press enter to return to the main menu: ")
+        choice = input("\nEnter the item number to add it to your cart, or press enter back to the main menu: ")
         
         if choice == '':
             break
@@ -171,6 +173,7 @@ def browse_menu():
 
 # 1.1.5 查看购物车
 def view_and_modify_cart():
+    clear_screen()
     if not CART:
         print("The shopping cart is empty.")
         return
@@ -207,6 +210,7 @@ def view_and_modify_cart():
 # 1.1.7 下单
 def checkout(username):
     global CURRENT_ORDER_ID
+    clear_screen()
     if not CART:
         print("The shopping cart is empty and cannot be checked out.")
         return
@@ -298,8 +302,9 @@ def checkout(username):
 
 # 1.1.8 查看订单状态
 def track_order_status(username):
+    clear_screen()
     if CURRENT_ORDER_ID is None:
-        print("\nNo active order to track. Please make an order first.")
+        print("No active order to track. Please make an order first.")
         return
         
     print("=== Order Tracking ===")
@@ -340,6 +345,12 @@ def track_order_status(username):
 
 # 1.1.9 提供反馈
 def feedback(username):
+    clear_screen()
+    
+    if CURRENT_ORDER_ID is None:
+        print("No active order to provide feedback. Please make an order first.")
+        return
+    
     print("\n=== Feedback ===")
     try:
         conn = sqlite3.connect('users.db')
@@ -361,13 +372,13 @@ def feedback(username):
         LIMIT 1
         ''', (user_id,))
         
-        latest_order = cursor.fetchone()
+        current_order = cursor.fetchone()
         
-        if not latest_order:
+        if not current_order:
             print("No orders found. Please make an order first.")
             return
 
-        order_id, total_amount, status, items = latest_order
+        order_id, total_amount, status, items = current_order
         print(f"\nProviding feedback for Order ID: {order_id}")
         print(f"Items: {items}")
         print(f"Total Amount: RM{total_amount}")
