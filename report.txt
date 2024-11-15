@@ -1,4 +1,0 @@
-==== Equipment Issues Log ====
-Equipment: Spoon
-Issue: Broke
-------------------------------
