@@ -13,7 +13,6 @@ def chef_login():
         username = input("Please enter a username (type 'undo' to go back) ► ")
         if username.lower() == 'undo':
             return
-        username = input("Please enter a username: ")
         password = input("Please enter a password: ")
         users = load_users()
         user_dict = {user[0]: user for user in users}
@@ -431,26 +430,54 @@ def view_production():
 
 # 1.2.9 报告设备问题
 def report_equip_i():
+    """Report an issue with equipment."""
     equipment_name = input("Enter equipment name: ")
     issue_description = input("Describe the malfunction or maintenance need: ")
 
+    # Append to the equipment log
     equipment_log.append({
         "equipment_name": equipment_name,
         "issue_description": issue_description
     })
-    print(f"Issue reported for '{equipment_name}' successfully!\n")
 
+    # Save the new issue to the report.txt file
+    with open("report.txt", "a") as file:
+        file.write("==== New Equipment Issue ====\n")
+        file.write(f"Equipment: {equipment_name}\n")
+        file.write(f"Issue: {issue_description}\n")
+        file.write(f"{'-' * 30}\n")
+
+    print(f"Issue reported for '{equipment_name}' successfully!\n")
 
 # 1.2.10 查看设备问题
 def view_equip_i():
     print("==== Equipment Issues Log ====")
-    if not equipment_log:
-        print("No equipment issues reported.")
-    else:
-        for issue in equipment_log:
-            print(f"Equipment: {issue['equipment_name']}")
-            print(f"Issue: {issue['issue_description']}")
-            print("-" * 30)
+
+    # Open the report.txt file in write mode to overwrite with the complete log
+    with open("report.txt", "w") as file:
+        # Header for the file
+        file.write("==== Equipment Issues Log ====\n")
+
+        if not equipment_log:
+            no_issues_message = "No equipment issues reported."
+            print(no_issues_message)
+            file.write(no_issues_message + "\n")
+        else:
+            for issue in equipment_log:
+                # Create formatted output for each issue
+                issue_text = (
+                    f"Equipment: {issue['equipment_name']}\n"
+                    f"Issue: {issue['issue_description']}\n"
+                    f"{'-' * 30}\n"
+                )
+
+                # Display issue in console
+                print(issue_text, end="")
+
+                # Save issue to the file
+                file.write(issue_text)
+
+    print("Equipment issues log has been saved to 'report.txt'.")
 
 
 # 1.2.11 厨师设置
