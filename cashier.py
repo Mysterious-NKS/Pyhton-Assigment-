@@ -1,7 +1,9 @@
+import sqlite3
 from chef import food_list, drink_list
 from database import load_users
 from member import clear_screen
 from member import browse_menu
+
 
 current_order = {}
 sales_records = []
@@ -20,7 +22,6 @@ def cashier_login():
 
         users = load_users()
         user_dict = {user[0]: user for user in users}
-
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
             print("Login successful!")
@@ -66,70 +67,15 @@ def cashier_display_menu():
     clear_screen()
     browse_menu()
 
-def find_member(username):
-    for member in registered_members:
-        if member['username'] == username:
-            return member
-    return None
-
-# Initialize a dictionary to store the current order
-current_order = {}
-
 def check_order_menu():
-    print("==== Take Order ====")
-    while True:
-        all_items = food_list + drink_list
-        print("Available items to order:")
-        for idx, item in enumerate(all_items, 1):
-            print(f"{idx}. {item['name']} - RM{item['price']} ({item['recipe']})")
-        
-        choice = input("\nPlease enter the item number to add into cart, or press enter to finish: ").strip()
-        
-        if choice == '':
-            print("Order complete!")
-            break
-        
-        if not choice.isdigit():
-            print("Please enter a valid number.")
-            continue
-            
-        choice = int(choice)
-        
-        if 1 <= choice <= len(all_items):
-            selected_item = all_items[choice - 1]
-            try:
-                quantity = int(input(f"Enter quantity for {selected_item['name']}: "))
-                if quantity <= 0:
-                    print("Quantity must be greater than zero.")
-                    continue
-                
-                if selected_item['name'] in current_order:
-                    current_order[selected_item['name']]['quantity'] += quantity
-                else:
-                    current_order[selected_item['name']] = {
-                        'price': selected_item['price'], 
-                        'quantity': quantity
-                    }
-                
-                print(f"{quantity} x {selected_item['name']} added to the order.")
-            except ValueError:
-                print("Invalid quantity, please enter a number.")
-        else:
-            print("Invalid option, please try again.")
-    
-    # 显示订单摘要
-    if current_order:
-        print("\nOrder Summary:")
-        for item, details in current_order.items():
-            print(f"{item}: {details['quantity']} x RM{details['price']} each")
-        print("")
-    else:
-        print("No items in order.")
-
+    pass
 
 def manage_discount_menu():
     while True:
-        print("\n==== Manage Discounts ====")
+        clear_screen()
+        print("\n╔══════════════════════════════════╗")
+        print("║        Manage Discount             ║")
+        print("╚══════════════════════════════════╝")
         print("1. Add Discount")
         print("2. Remove Discount")
         print("0. Return to Cashier Menu")
@@ -146,7 +92,6 @@ def manage_discount_menu():
             break
         else:
             print("Invalid choice, please try again.")
-
 
 # Dictionary to store discounts specifically for current order items
 discounts = {}  # Example format: {'Burger': 10} for 10% off on Burger
@@ -203,7 +148,10 @@ def record_transaction(order):
 
 
 def generate_sales_report():
-    print("\n--- Sales Report ---")
+    clear_screen()
+    print("\n╔══════════════════════════════════╗")
+    print("║        Sales Report              ║")
+    print("╚══════════════════════════════════╝")
     total_sales = 0
     item_summary = {}
     total_discounted_amount = 0
