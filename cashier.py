@@ -66,6 +66,12 @@ def cashier_display_menu():
     clear_screen()
     browse_menu()
 
+def find_member(username):
+    for member in registered_members:
+        if member['username'] == username:
+            return member
+    return None
+
 # Initialize a dictionary to store the current order
 current_order = {}
 
