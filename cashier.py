@@ -1,8 +1,7 @@
 from chef import food_list, drink_list
 from database import load_users
-from chef import view_menu
 from member import clear_screen
-from member import display_menu
+from member import browse_menu
 
 current_order = {}
 sales_records = []
@@ -14,10 +13,14 @@ def cashier_login():
     print("║        Cashier Login              ║")
     print("╚══════════════════════════════════╝")
     while True:
-        username = input("Please enter a username: ")
+        username = input("Please enter a username (press enter to undo) ► ")
+        if username.lower() == '':
+            return
         password = input("Please enter a password: ")
+
         users = load_users()
         user_dict = {user[0]: user for user in users}
+
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
             print("Login successful!")
@@ -30,19 +33,21 @@ def cashier_menu():
     global current_order  # Move this to the beginning of the function
     clear_screen()
     while True:
-        print("\n==== Cashier Menu ====")
+        print("\n╔══════════════════════════════════╗")
+        print("║        Cashier Menu              ║")
+        print("╚══════════════════════════════════╝")
         print("1. View Menu")
-        print("2. Take Order")
-        print("3. Manage Discounts for Order")
+        print("2. Check Member Order")
+        print("3. Manage Discounts")
         print("4. Generate Receipt")
         print("5. Generate Sales Report")
         print("0. Exit")
         choice = input("Choose an option: ")
 
         if choice == "1":
-            product_display_menu()
+            cashier_display_menu()
         elif choice == "2":
-            take_order_menu()
+            check_order_menu()
         elif choice == "3":
             manage_discount_menu()
         elif choice == "4":
@@ -57,15 +62,14 @@ def cashier_menu():
         else:
             print("Invalid choice, please try again.")
 
-def product_display_menu():
-    print("\n==== Product Display ====")
-    display_menu()
-    input("\nPress Enter to return to the Cashier Menu.")
+def cashier_display_menu():
+    clear_screen()
+    browse_menu()
 
 # Initialize a dictionary to store the current order
 current_order = {}
 
-def take_order_menu():
+def check_order_menu():
     print("==== Take Order ====")
     while True:
         all_items = food_list + drink_list
