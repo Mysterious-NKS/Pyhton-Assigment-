@@ -4,11 +4,6 @@ from member import clear_screen
 from member import display_menu
 from member import load_menu
 
-
-current_order = {}
-sales_records = []
-discounts = {}
-
 #1.0 login
 def cashier_login():
     clear_screen()
@@ -72,7 +67,6 @@ def cashier_display_menu():
     load_menu()
     menu = load_menu()
     display_menu(menu)
-
 
 #
 #
@@ -251,7 +245,6 @@ def restore_original_price(order_id):
     finally:
         if conn:
             conn.close()
-
 
 #
 # 
