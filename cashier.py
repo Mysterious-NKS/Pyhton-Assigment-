@@ -252,10 +252,8 @@ def restore_original_price(order_id):
 def generate_receipt_menu():
     pass
 
-
-
-
-
+#
+#
 #6.1
 def generate_sales_report():
     pass
