@@ -261,86 +261,11 @@ def restore_original_price(order_id):
 #
 # 
 # 5.1
-def generate_receipt(order_id):
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-
-        # Get order details
-        cursor.execute('''
-            SELECT users.username, orders.total_amount, orders.status, orders.order_date
-            FROM orders
-            JOIN users ON orders.user_id = users.id
-            WHERE orders.order_id = ?
-        ''', (order_id,))
-        order_details = cursor.fetchone()
-
-        if not order_details:
-            print(f"Order ID {order_id} not found.")
-            return
-
-        username, total_amount, status, order_date = order_details
-
-        # Print the receipt header
-        print("\n==== Receipt ====")
-        print(f"Order ID: {order_id}")
-        print(f"Customer: {username}")
-        print(f"Order Date: {order_date}")
-        print(f"Status: {status}")
-        print("-" * 30)
-
-        # Get the order items
-        cursor.execute('''
-            SELECT item_name, price, quantity 
-            FROM order_items 
-            WHERE order_id = ?
-        ''', (order_id,))
-        items = cursor.fetchall()
-
-        if items:
-            total_price = 0
-            for item_name, price, quantity in items:
-                subtotal = price * quantity
-                total_price += subtotal
-                print(f"{item_name:<20}{price:<10.2f}{quantity:<10}{subtotal:<10.2f}")
-        
-            print("-" * 30)
-            print(f"{'Total Amount:':<30} RM{total_price:.2f}")
-        else:
-            print("No items found for this order.")
-        
-        # Update the order status to 'completed'
-        cursor.execute('''
-            UPDATE orders
-            SET status = 'completed'
-            WHERE order_id = ?
-        ''', (order_id,))
-        conn.commit()
-
-        print("\nReceipt Generated Successfully!")
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred while generating the receipt: {e}")
-    
-    finally:
-        if conn:
-            conn.close()
-
 def generate_receipt_menu():
-    while True:
-        # Show the list of orders before generating the receipt
-        display_orders()
+    pass
 
-        # Ask the cashier to select an order ID to generate receipt
-        order_id = input("\nEnter the Order ID to generate a receipt, or press enter to return: ").strip()
 
-        if order_id == '':
-            break
-        elif order_id.isdigit():
-            order_id = int(order_id)
-            generate_receipt(order_id)
-        else:
-            print("Invalid input. Please enter a valid Order ID.")
+
 
 
 #6.1
