@@ -4,11 +4,6 @@ from member import clear_screen
 from member import display_menu
 from member import load_menu
 
-# In cashier.py
-
-def some_function():
-    from cashier import display_orders  # Local import to avoid circular import
-    # Now you can use display_orders here
 
 current_order = {}
 sales_records = []
