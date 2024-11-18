@@ -343,9 +343,6 @@ def generate_receipt_menu():
             print("Invalid input. Please enter a valid Order ID.")
 
 
-
-
-
 #6.1
 def generate_sales_report():
     pass
