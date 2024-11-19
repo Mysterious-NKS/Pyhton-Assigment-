@@ -8,7 +8,7 @@ from member import load_menu
 def cashier_login():
     clear_screen()
     print("\n╔══════════════════════════════════╗")
-    print("║        Cashier Login              ║")
+    print("║        Cashier Login             ║")
     print("╚══════════════════════════════════╝")
     while True:
         username = input("Please enter a username (press enter to undo) ► ")
@@ -132,7 +132,9 @@ def change_order_status_menu():
         # Display the list of orders
         display_orders()
         
-        print("\n==== Change Order Status ====")
+        print("\n╔══════════════════════════════════╗")
+        print("║       Change Order Status        ║")
+        print("╚══════════════════════════════════╝")
         order_id = input("Enter the Order ID to update (or press Enter to return): ").strip()
         
         if order_id == '':
@@ -187,7 +189,9 @@ def manage_discount_menu():
         clear_screen()
         # Show the current orders before allowing discount management 
         display_orders()
-        print("\n==== Manage Discounts ====")
+        print("\n╔══════════════════════════════════╗")
+        print("║         Manage Discount          ║")
+        print("╚══════════════════════════════════╝")
         print("1. Apply Discount to Order")
         print("2. Remove Discount from Order (Restore Original Price)")
         print("0. Return to Cashier Menu")
