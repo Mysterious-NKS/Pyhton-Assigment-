@@ -26,28 +26,6 @@ def cashier_login():
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
-def check_users_table_schema():
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-        
-        # Get the schema of the users table
-        cursor.execute("PRAGMA table_info(users);")
-        schema = cursor.fetchall()
-
-        print("Users Table Schema:")
-        for column in schema:
-            print(column)
-
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-
-    finally:
-        if conn:
-            conn.close()
-
-check_users_table_schema()
-
 #
 #
 #1.1 menu
@@ -74,7 +52,7 @@ def cashier_menu():
         elif choice == "4":
             generate_receipt_menu() #5.0
         elif choice == "5":
-            generate_sales_report()
+            generate_report_menu() #6.0
         elif choice == "0":
             print("Exiting Cashier Menu...")
             break
@@ -280,32 +258,32 @@ def generate_receipt(order_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Retrieve the order details
+        # Retrieve order details for the given order_id
         cursor.execute('''
-            SELECT orders.order_id, users.username, orders.total_amount, orders.status, orders.order_date
+            SELECT orders.total_amount, orders.status, orders.order_date, users.username
             FROM orders
             JOIN users ON orders.user_id = users.id
             WHERE orders.order_id = ?
         ''', (order_id,))
         order = cursor.fetchone()
 
-        if not order:
+        if order:
+            total_amount, status, order_date, username = order
+
+            # Display receipt
+            print("\n==== Receipt ====")
+            print(f"Order ID: {order_id}")
+            print(f"Username: {username}")
+            print(f"Order Date: {order_date}")
+            print(f"Status: {status}")
+            print(f"Total Amount: RM{total_amount:.2f}")
+            print("\nThank you for your purchase!")
+        else:
             print(f"Order ID {order_id} not found.")
-            return
-
-        order_id, username, total_amount, status, order_date = order
-
-        # Display the receipt
-        print("\n=== Receipt ===")
-        print(f"Order ID: {order_id}")
-        print(f"Customer: {username}")
-        print(f"Order Date: {order_date}")
-        print(f"Status: {status}")
-        print(f"Total Amount: RM{total_amount:.2f}")
-        print("\nThank you for your purchase!\n")
-
+    
     except sqlite3.Error as e:
         print(f"An error occurred while generating the receipt: {e}")
+    
     finally:
         if conn:
             conn.close()
@@ -313,37 +291,149 @@ def generate_receipt(order_id):
 
 def generate_receipt_menu():
     while True:
+        # Step 1: Display available orders
         display_orders()
-        print("\n==== Generate Receipt ====")
-        print("Enter the Order ID to generate the receipt or '0' to return to the menu.")
-        
-        choice = input("Your choice: ").strip()
 
-        if choice == '0':
-            break
-        
-        if not choice.isdigit():
+        # Step 2: Get the Order ID to generate a receipt
+        try:
+            order_id = int(input("\nEnter the Order ID to generate the receipt (or enter 0 to exit): "))
+            if order_id == 0:
+                print("Exiting receipt generation.")
+                break  # Exit the loop if 0 is entered
+            # Step 3: Generate and display the receipt
+            generate_receipt(order_id)
+
+            # Step 4: Optionally, save the receipt to a file
+            save_choice = input("\nWould you like to save the receipt to a file? (y/n): ").lower()
+            if save_choice == 'y':
+                generate_receipt_to_file(order_id)
+            else:
+                print("Receipt not saved.")
+
+        except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
-            continue
-        
-        order_id = int(choice)
-        generate_receipt(order_id)
 
 
-# print("\nYour order status:")
-#         order_id, total_amount, order_date, items = order
-#         print(f"\nOrder ID: {order_id}")
-#         print(f"Items: {items}")
-#         print(f"Total Amount: RM{total_amount}")
-#         print(f"Order Date: {order_date}")
-#         print("-" * 30)
+def generate_receipt_to_file(order_id):
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
 
+        # Retrieve order details for the given order_id
+        cursor.execute('''
+            SELECT orders.total_amount, orders.status, orders.order_date, users.username
+            FROM orders
+            JOIN users ON orders.user_id = users.id
+            WHERE orders.order_id = ?
+        ''', (order_id,))
+        order = cursor.fetchone()
+
+        if order:
+            total_amount, status, order_date, username = order
+
+            # Prepare the receipt content
+            receipt_content = f"""
+            ==== Receipt ====
+            Order ID: {order_id}
+            Username: {username}
+            Order Date: {order_date}
+            Status: {status}
+            Total Amount: RM{total_amount:.2f}
+            
+            Thank you for your purchase!
+            """
+
+            # Save to a text file
+            with open(f"receipt_{order_id}.txt", "w") as file:
+                file.write(receipt_content)
+            print(f"Receipt saved as receipt_{order_id}.txt")
+        else:
+            print(f"Order ID {order_id} not found.")
+    
+    except sqlite3.Error as e:
+        print(f"An error occurred while generating the receipt: {e}")
+    
+    finally:
+        if conn:
+            conn.close()
 
 #
 #
 #6.1
 def generate_sales_report():
-    pass
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Total sales report
+        cursor.execute('''
+            SELECT SUM(total_amount) FROM orders WHERE status = 'completed'
+        ''')
+        total_sales = cursor.fetchone()[0]
+        total_sales = total_sales if total_sales else 0.0
+
+        # Show the report
+        print("\n=== Sales Performance Report ===")
+        print(f"Total Sales (Completed Orders): RM{total_sales:.2f}")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while generating the sales report: {e}")
+    
+    finally:
+        if conn:
+            conn.close()
+
+def generate_product_popularity_report():
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Product popularity report (most popular products by quantity ordered)
+        cursor.execute('''
+            SELECT item_name, SUM(quantity) AS total_quantity
+            FROM order_items
+            GROUP BY item_name
+            ORDER BY total_quantity DESC
+        ''')
+        items = cursor.fetchall()
+
+        # Show the report
+        print("\n=== Product Popularity Report ===")
+        if items:
+            for item in items:
+                item_name, total_quantity = item
+                print(f"{item_name}: {total_quantity} ordered")
+        else:
+            print("No order data available.")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while generating the product popularity report: {e}")
+    
+    finally:
+        if conn:
+            conn.close()
+
+def generate_report_menu():
+    while True:
+        print("\n==== Report Generation Menu ====")
+        print("1. Generate Sales Report")
+        print("2. Generate Product Popularity Report")
+        print("0. Exit")
+        
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            generate_sales_report()
+        elif choice == '2':
+            generate_product_popularity_report()
+        elif choice == '0':
+            print("Exiting report generation.")
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+
+
 
 
 
