@@ -26,6 +26,28 @@ def cashier_login():
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
+def check_users_table_schema():
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        
+        # Get the schema of the users table
+        cursor.execute("PRAGMA table_info(users);")
+        schema = cursor.fetchall()
+
+        print("Users Table Schema:")
+        for column in schema:
+            print(column)
+
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
+check_users_table_schema()
+
 #
 #
 #1.1 menu
@@ -253,11 +275,76 @@ def restore_original_price(order_id):
 #
 # 
 # 5.1
+def generate_receipt(order_id):
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Retrieve the order details
+        cursor.execute('''
+            SELECT orders.order_id, users.username, orders.total_amount, orders.status, orders.order_date
+            FROM orders
+            JOIN users ON orders.user_id = users.id
+            WHERE orders.order_id = ?
+        ''', (order_id,))
+        order = cursor.fetchone()
+
+        if not order:
+            print(f"Order ID {order_id} not found.")
+            return
+
+        order_id, username, total_amount, status, order_date = order
+
+        # Display the receipt
+        print("\n=== Receipt ===")
+        print(f"Order ID: {order_id}")
+        print(f"Customer: {username}")
+        print(f"Order Date: {order_date}")
+        print(f"Status: {status}")
+        print(f"Total Amount: RM{total_amount:.2f}")
+        print("\nThank you for your purchase!\n")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while generating the receipt: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+
 def generate_receipt_menu():
-    pass
+    while True:
+        display_orders()
+        print("\n==== Generate Receipt ====")
+        print("Enter the Order ID to generate the receipt or '0' to return to the menu.")
+        
+        choice = input("Your choice: ").strip()
+
+        if choice == '0':
+            break
+        
+        if not choice.isdigit():
+            print("Invalid input. Please enter a valid Order ID.")
+            continue
+        
+        order_id = int(choice)
+        generate_receipt(order_id)
+
+
+# print("\nYour order status:")
+#         order_id, total_amount, order_date, items = order
+#         print(f"\nOrder ID: {order_id}")
+#         print(f"Items: {items}")
+#         print(f"Total Amount: RM{total_amount}")
+#         print(f"Order Date: {order_date}")
+#         print("-" * 30)
+
 
 #
 #
 #6.1
 def generate_sales_report():
     pass
+
+
+
+

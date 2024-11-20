@@ -94,3 +94,4 @@ def save_user(username, password, user_type):
         print("User information has been saved.")
     else:
         print("Failed to save user information.") 
+
