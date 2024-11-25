@@ -129,7 +129,7 @@ def update_order_status(order_id, new_status):
 
 def change_order_status_menu():
     while True:
-        # Display the list of orders
+        clear_screen()
         display_orders()
         
         print("\n╔══════════════════════════════════╗")
@@ -187,7 +187,6 @@ def apply_discount_to_order(order_id, discount_percent):
 def manage_discount_menu():
     while True:
         clear_screen()
-        # Show the current orders before allowing discount management 
         display_orders()
         print("\n╔══════════════════════════════════╗")
         print("║         Manage Discount          ║")
@@ -254,108 +253,134 @@ def restore_original_price(order_id):
 # 
 # 5.1
 def generate_receipt(order_id):
+    clear_screen()
+    print("\n╔══════════════════════════════════╗")
+    print("║         Generate Receipt         ║")
+    print("╚══════════════════════════════════╝")
+    
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Retrieve order details for the given order_id
+        # Fetch order details
         cursor.execute('''
-            SELECT orders.total_amount, orders.status, orders.order_date, users.username
-            FROM orders
-            JOIN users ON orders.user_id = users.id
-            WHERE orders.order_id = ?
+        SELECT o.order_id, o.total_amount, o.status, o.order_date,
+               GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ') || RM' || ROUND(oi.price, 2)) as items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE o.order_id = ?
+        GROUP BY o.order_id
         ''', (order_id,))
+        
         order = cursor.fetchone()
+        
+        if not order:
+            print("Order not found.")
+            return
+        
+        # Unpack order details
+        order_id, total_amount, status, order_date, items = order
 
-        if order:
-            total_amount, status, order_date, username = order
-
-            # Display receipt
-            print("\n==== Receipt ====")
-            print(f"Order ID: {order_id}")
-            print(f"Username: {username}")
-            print(f"Order Date: {order_date}")
-            print(f"Status: {status}")
-            print(f"Total Amount: RM{total_amount:.2f}")
-            print("\nThank you for your purchase!")
-        else:
-            print(f"Order ID {order_id} not found.")
-    
+        # Print receipt details
+        print("\n=== Receipt ===")
+        print("Thank you for your order!")
+        print("-" * 30)
+        print(f"Order ID: {order_id}")
+        print(f"Date: {order_date}")
+        print("-" * 30)
+        print("Items Ordered:")
+        if items:
+            item_lines = items.split("||")
+            for line in item_lines:
+                print(f"  {line.strip()}")
+        print("-" * 30)
+        print(f"Total: RM{total_amount:.2f}")
+        print(f"Status: {status.capitalize()}")
+        print("-" * 30)
+        print("Please visit again!")
+        
     except sqlite3.Error as e:
-        print(f"An error occurred while generating the receipt: {e}")
-    
+        print(f"Error generating receipt: {e}")
     finally:
         if conn:
             conn.close()
 
+def generate_receipt_to_file(order_id, filename='receipt.txt'):
+    """Generate and save the receipt to a file."""
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
 
+        # Fetch order details
+        cursor.execute('''
+        SELECT o.order_id, o.total_amount, o.status, o.order_date,
+               GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ') || RM' || ROUND(oi.price, 2)) as items
+        FROM orders o
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        WHERE o.order_id = ?
+        GROUP BY o.order_id
+        ''', (order_id,))
+        
+        order = cursor.fetchone()
+        
+        if not order:
+            print("Order not found.")
+            return
+        
+        # Unpack order details
+        order_id, total_amount, status, order_date, items = order
+
+        # Write receipt to file
+        with open(filename, 'w') as file:
+            file.write("=== Receipt ===\n")
+            file.write("Thank you for your order!\n")
+            file.write("-" * 30 + "\n")
+            file.write(f"Order ID: {order_id}\n")
+            file.write(f"Date: {order_date}\n")
+            file.write("-" * 30 + "\n")
+            file.write("Items Ordered:\n")
+            if items:
+                item_lines = items.split("||")
+                for line in item_lines:
+                    file.write(f"  {line.strip()}\n")
+            file.write("-" * 30 + "\n")
+            file.write(f"Total: RM{total_amount:.2f}\n")
+            file.write(f"Status: {status.capitalize()}\n")
+            file.write("-" * 30 + "\n")
+            file.write("Please visit again!\n")
+        
+        print(f"Receipt saved to {filename}.")
+        
+    except sqlite3.Error as e:
+        print(f"Error generating receipt: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+# Example usage
 def generate_receipt_menu():
     while True:
-        # Step 1: Display available orders
+        clear_screen()
+        print("\n╔══════════════════════════════════╗")
+        print("║      Generate Receipt Menu       ║")
+        print("╚══════════════════════════════════╝")
         display_orders()
-
-        # Step 2: Get the Order ID to generate a receipt
+        order_id = input("Enter the Order ID to generate the receipt (or 'enter' to quit): ")
+        if order_id.lower() == '':
+            print("Exiting receipt menu.")
+            break
         try:
-            order_id = int(input("\nEnter the Order ID to generate the receipt (or enter 0 to exit): "))
-            if order_id == 0:
-                print("Exiting receipt generation.")
-                break  # Exit the loop if 0 is entered
-            # Step 3: Generate and display the receipt
+            order_id = int(order_id)
             generate_receipt(order_id)
-
-            # Step 4: Optionally, save the receipt to a file
-            save_choice = input("\nWould you like to save the receipt to a file? (y/n): ").lower()
+            save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
             if save_choice == 'y':
-                generate_receipt_to_file(order_id)
-            else:
-                print("Receipt not saved.")
-
+                filename = input("Enter the filename (default: receipt.txt): ").strip()
+                if not filename:
+                    filename = "receipt.txt"
+                generate_receipt_to_file(order_id, filename)
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
 
-
-def generate_receipt_to_file(order_id):
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-
-        # Retrieve order details for the given order_id
-        cursor.execute('''
-            SELECT orders.total_amount, orders.status, orders.order_date, users.username
-            FROM orders
-            JOIN users ON orders.user_id = users.id
-            WHERE orders.order_id = ?
-        ''', (order_id,))
-        order = cursor.fetchone()
-
-        if order:
-            total_amount, status, order_date, username = order
-
-            # Prepare the receipt content
-            receipt_content = f"""
-            ==== Receipt ====
-            Order ID: {order_id}
-            Username: {username}
-            Order Date: {order_date}
-            Status: {status}
-            Total Amount: RM{total_amount:.2f}
-            
-            Thank you for your purchase!
-            """
-
-            # Save to a text file
-            with open(f"receipt_{order_id}.txt", "w") as file:
-                file.write(receipt_content)
-            print(f"Receipt saved as receipt_{order_id}.txt")
-        else:
-            print(f"Order ID {order_id} not found.")
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred while generating the receipt: {e}")
-    
-    finally:
-        if conn:
-            conn.close()
 
 #
 #
@@ -415,7 +440,10 @@ def generate_product_popularity_report():
 
 def generate_report_menu():
     while True:
-        print("\n==== Report Generation Menu ====")
+        clear_screen()
+        print("\n╔══════════════════════════════════╗")
+        print("║        Sales Report Menu         ║")
+        print("╚══════════════════════════════════╝")
         print("1. Generate Sales Report")
         print("2. Generate Product Popularity Report")
         print("0. Exit")
