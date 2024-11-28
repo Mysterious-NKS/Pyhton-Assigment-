@@ -1,35 +1,134 @@
 from datetime import datetime
 from database import load_users
 import sqlite3
+import shutil
 
+def terminal_size():
+    #Get the terminal size dynamically.
+    size = shutil.get_terminal_size(fallback=(145, 24))  # Default to 145 width, 24 height
+    return size.lines, size.columns
+
+
+def custom_clear_screen():
+    # Push previous content down
+    print("\n" * 20, end="")  # Push content out of view
+
+
+
+def print_centered_box(columns):
+    #Print the login box centered horizontally with colours.
+    # Define the box width explicitly
+    box_width = 60
+    padding = (columns - box_width) // 2
+
+    # Box lines with darker blue
+    print(" " * padding + "\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+    print(" " * padding + "\033[34m║" + " " * ((box_width - 22) // 2) +
+          "\033[1;36mManager Login Page" + "\033[34m" + " " * ((box_width - 18) // 2) + "║\033[0m")
+    print(" " * padding + "\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
 
 def manager_login():
-    print("\n==== Manager Login ====")
     while True:
-        username = input("Please enter a username: ")
-        password = input("Please enter a password: ")
+        custom_clear_screen()  # Clear the screen at the start
+        rows, columns = terminal_size()  # Get terminal dimensions
+
+        # Place the box at the top-middle of the terminal
+        top_padding = 2  # Adjust for top spacing
+        print("\n" * top_padding)
+
+        # Print the centered box with updated colours
+        print_centered_box(columns)
+
+        # Center the input fields horizontally
+        input_width = 40  # Approximate width of the input prompt
+        username = input("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mEnter your username: \033[0m").strip()
+        password = input(" " * ((columns - input_width) // 2) + "\033[1;36mEnter your password: \033[0m").strip()
+
         users = load_users()
         user_dict = {user[0]: user for user in users}
         user = user_dict.get(username)
+
         if user and user[1] == password and user[2] == 'manager':
-            print("Login successful!")
-            manager_menu()
+            custom_clear_screen()  # Clear the screen before showing the success message
+            print("\n" * top_padding)
+            print_centered_box(columns)
+            print("\n" + " " * ((columns - input_width) // 2) + "\033[1;36m✓ Login successful! Welcome, Manager.\033[0m")
+            input("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mPress Enter to continue...\033[0m")
+            manager_menu()  # Proceed to the manager menu
             break
         else:
-            print("Username or password is incorrect, or you are not a manager. Please try again.")
+            custom_clear_screen()  # Clear the screen before showing the error message
+            print("\n" * top_padding)
+            print_centered_box(columns)
+            print("\n" + " " * ((columns - input_width) // 2) + "\033[1;36m❌ Username or password is incorrect.\033[0m")
+            retry = input("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mRetry? (y/n): \033[0m").strip().lower()
+            if retry != 'y':
+                custom_clear_screen()
+                print("\n" * top_padding)
+                print_centered_box(columns)
+                print("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mReturning to the main menu...\033[0m")
+                break
 
 
 def manager_menu():
+    """Displays the manager menu."""
     while True:
-        print("\n==== Manager Menu ====")
-        print("1. Manage User Accounts")
-        print("2. Oversee Order Details")
-        print("3. Track Financial")
-        print("4. Control Inventory")
-        print("5. Review Customer Feedback")
-        print("0. Exit")
-        choice = input("Choose an option: ")
+        custom_clear_screen()  # Clear the screen at the start
+        rows, columns = terminal_size()  # Get terminal dimensions
+
+        # Define the box width explicitly
+        box_width = 60
+        padding = (columns - box_width) // 2
+        top_padding = 2  # Adjust for top spacing
+
+        # Place the box at the top-middle of the terminal
+        print("\n" * top_padding)
+
+        # Box lines with darker blue
+        print(" " * padding + "\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print(" " * padding + "\033[34m║" + " " * ((box_width - 14) // 2) +
+              "\033[1;36mManager Menu" + "\033[34m" + " " * ((box_width - 14) // 2) + "║\033[0m")
+        print(" " * padding + "\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+        # Menu options
+        menu_items = [
+            "1. Manage User Accounts",
+            "2. Oversee Order Details",
+            "3. Track Financial",
+            "4. Control Inventory",
+            "5. Review Customer Feedback",
+            "0. Exit"
+        ]
+
+        for item in menu_items:
+            print(" " * padding + "\033[34m║\033[0m " + "\033[1;36m" + item.ljust(box_width - 3) + "\033[0m" + "\033[34m║\033[0m")
+
+        # Bottom border of the box
+        print(" " * padding + "\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Center the input fields horizontally
+        input_width = 40  # Approximate width of the input prompt
+        choice = input("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mChoose an option: \033[0m").strip()
+
+        if choice == "1":
+            manage_user_accounts()
+        elif choice == "2":
+            oversee_order_details()
+        elif choice == "3":
+            track_financial()
+        elif choice == "4":
+            control_inventory()
+        elif choice == "5":
+            review_customer_feedback()
+        elif choice == "0":
+            custom_clear_screen()
+            print("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mExiting Manager Menu...\033[0m")
+            break
+        else:
+            custom_clear_screen()
+            print("\n" + " " * ((columns - input_width) // 2) + "\033[1;36mInvalid choice, please try again.\033[0m")
+
 
         if choice == "1":
             manage_user_accounts()
