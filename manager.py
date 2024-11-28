@@ -885,88 +885,91 @@ def oversee_order_details():
     return order_management()
 
 def update_order_status():
-    """Update the status of orders marked as 'Pending'."""
-    conn = None
+    """Update the status of pending orders to 'Completed'."""
+    conn = None  # Initialize the connection to avoid UnboundLocalError
     try:
         custom_clear_screen()  # Clear the screen at the start
 
-        # Header box for Update Order Status
-        box_width = 70
+        # Define box dimensions for proper alignment
+        box_width = 80
         print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[34m║\033[0m \033[1;36mUpdate Order Status" + " " * (box_width - 23) + "\033[34m║\033[0m")
+        print("\033[34m║\033[0m \033[1;36mUpdate Order Status" + " " * (box_width - 22) + "\033[34m║\033[0m")
         print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
-        # Connect to the database
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
+        conn = sqlite3.connect("users.db")  # Connect to the database
+        cursor = conn.cursor()  # Create a cursor for executing SQL commands
 
-        # Fetch orders with "Pending" status
-        cursor.execute("SELECT order_id, username, status FROM orders WHERE status = 'Pending'")
-        pending_orders = cursor.fetchall()
+        # Fetch all orders with 'pending' status
+        cursor.execute("""
+            SELECT o.order_id, u.username, o.total_amount, o.status
+            FROM orders o
+            INNER JOIN users u ON o.user_id = u.rowid
+            WHERE o.status = 'pending'
+        """)
+        orders = cursor.fetchall()
 
-        if pending_orders:
-            # Display the list of pending orders
+        if orders:
+            # Display the table header
             print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mPending Orders".ljust(box_width - 3) + "\033[34m║\033[0m")
-            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
-            print("\033[34m║\033[0m \033[1;36m" + f"{'Order ID':<10}{'Username':<20}{'Status':<15}".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m║\033[0m \033[1;36m" + f"{'Order ID':<15} {'Username':<20} {'Total Amount':<15} {'Status'}".ljust(box_width - 3) + "\033[34m║\033[0m")
             print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
 
-            for order in pending_orders:
-                order_id, username, status = order
-                print("\033[34m║\033[0m " + f"{order_id:<10}{username:<20}{status:<15}".ljust(box_width - 3) + "\033[34m║\033[0m")
+            # Display each pending order
+            for order in orders:
+                order_id, username, total_amount, status = order
+                print("\033[34m║\033[0m " + f"{order_id:<15} {username:<20} RM{total_amount:<13.2f} {status}".ljust(box_width - 3) + "\033[34m║\033[0m")
 
+            # Close the table
             print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
             while True:
-                # Prompt user for action
-                order_id = input("\033[1;36mEnter the Order ID to mark as Completed (or 0 to return): \033[0m").strip()
+                # Prompt the manager to select an order to update
+                order_id_input = input("\033[1;36mEnter the Order ID to mark as Completed (or 0 to return): \033[0m").strip()
 
-                if order_id == "0":
+                if order_id_input == "0":
                     # Return to the previous menu
                     return order_management()
 
-                if not order_id.isdigit() or not any(str(o[0]) == order_id for o in pending_orders):
+                if not order_id_input.isdigit() or not any(str(order[0]) == order_id_input for order in orders):
                     custom_clear_screen()
                     print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
                     print("\033[31m║\033[0m \033[33mInvalid Order ID. Please try again.".ljust(box_width - 3) + "\033[31m║\033[0m")
                     print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
                     input("\033[1;33mPress Enter to retry...\033[0m")
-                    return update_order_status()
+                    continue
 
-                # Update the order status
-                cursor.execute("UPDATE orders SET status = 'Completed' WHERE order_id = ?", (order_id,))
+                # Update the order status to 'Completed'
+                cursor.execute("UPDATE orders SET status = 'Completed' WHERE order_id = ?", (order_id_input,))
                 conn.commit()
 
                 custom_clear_screen()
                 print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-                print("\033[34m║\033[0m \033[1;36mOrder ID " + order_id + " has been marked as Completed.".ljust(box_width - 3) + "\033[34m║\033[0m")
+                print("\033[34m║\033[0m \033[1;36mOrder ID " + order_id_input + " has been marked as Completed.".ljust(box_width - 3) + "\033[34m║\033[0m")
                 print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
                 input("\033[1;36mPress Enter to return to Update Order Status...\033[0m")
                 return update_order_status()
 
         else:
             # No pending orders
-            custom_clear_screen()
             print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mNo pending orders found.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m║\033[0m \033[33mNo pending orders found.".ljust(box_width - 3) + "\033[34m║\033[0m")
             print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
     except sqlite3.Error as e:
         # Handle database errors
         custom_clear_screen()
         print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[31m║\033[0m \033[33mDatabase error occurred: " + str(e)[:50].ljust(50) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33mDatabase error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
         print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
     finally:
-        # Ensure the database connection is closed
         if conn:
-            conn.close()
+            conn.close()  # Ensure the database connection is closed
 
-    # Pause before returning
     input("\033[1;36mPress Enter to return to Order Management...\033[0m")
     return order_management()
+
 
 
 
