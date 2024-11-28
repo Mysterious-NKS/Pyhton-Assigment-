@@ -2,6 +2,8 @@ from datetime import datetime
 from database import load_users
 import sqlite3
 
+
+
 def manager_login():
     print("\n==== Manager Login ====")
     while True:
@@ -174,16 +176,67 @@ def view_users():
     try:
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
-        cursor.execute("SELECT username, user_type FROM users")
-        users = cursor.fetchall() #fetchall is Fetch All
-        #Displaying the users
-        if users:
-            print(f"{'Username':<15}{'User Type'.upper():<15}") #This is to make a header, the arrows are for the alignment and the number is the width
-            print("-"*30) #This is just to make a line below the header
-            for user in users:
-                print(f"{user[0]:<20}{user[1]:<10}")
-        else:
-            print("No users found in the data base.")
+
+        current_view = "all"  # Track current view state: 'all' or a specific filter
+        user_type = None  # Default to no filter
+
+        while True:
+            # Fetch and display users based on current view
+            if current_view == "all":
+                cursor.execute("SELECT username, user_type FROM users")
+                users = cursor.fetchall()
+                print("\nAll Users:")
+            else:
+                cursor.execute("SELECT username, user_type FROM users WHERE user_type = ?", (user_type,))
+                users = cursor.fetchall()
+                print(f"\nFiltered Users ({user_type.capitalize()}s):")
+            #Display the users
+            if users:
+                print(f"{'Username':<15}{'User Type'.upper():<15}") #This is to make a header, the arrows are for the alignment and the number is the width
+                print("-"*30) #This is just to make a line below the header
+                for user in users:
+                    print(f"{user[0]:<20}{user[1]:<10}")
+            else:
+                print("No users found in the data base.")
+            #Provide options after displaying all users
+            print("\nOptions:")
+            if current_view == "all":
+                print("1. Filter by User Type")
+            else:
+                print("1. Switch Filter / Show All Users")
+            print("0. Return to Manage User Accounts")
+            choice = input("Choose an option (0-1): ").strip()
+
+            if choice == "1":
+                print("\nFilter Options:")
+                print("1. Show Members")
+                print("2. Show Managers")
+                print("3. Show Chefs")
+                print("4. Show Cashiers")
+                print("0. Return to All Users")
+                filter_choice = input("Choose an option (0-4): ").strip()
+
+                if filter_choice == "1":
+                    user_type = "member"
+                    current_view = "filter"
+                elif filter_choice == "2":
+                    user_type = "manager"
+                    current_view = "filter"
+                elif filter_choice == "3":
+                    user_type = "chef"
+                    current_view = "filter"
+                elif filter_choice == "4":
+                    user_type = "cashier"
+                    current_view = "filter"
+                elif filter_choice == "0":
+                    current_view = "all"
+                else:
+                    print("Invalid choice. Please try again.")
+            elif choice == "0":
+                print("Returning to Manage USer Accounts....")
+                break
+            else:
+                print("Invalid choice. Please try again. ")
     except sqlite3.Error as e: #Error Handling
         print(f"An error occurred while accessing the database: {e}")
     finally: #Error handling
