@@ -1,8 +1,0 @@
-==== Equipment Issues Log ====
-Equipment: Spoon
-Issue: Broke
-------------------------------
-==== New Equipment Issue ====
-Equipment: Kitchen knife
-Issue: Broke due to overused
-------------------------------

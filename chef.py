@@ -2,7 +2,6 @@ from database import load_users
 production_log = []
 equipment_log = []
 import os
-#ee
 
 def clear_screen():
     os.system("cls")
@@ -432,62 +431,75 @@ def view_production():
 
 
 # 1.2.9 报告设备问题
+import os
+
+# In-memory log for the current session
+equipment_log = []
+
+def initialize_file():
+    """Initialize the report file if it does not exist."""
+    if not os.path.exists("report.txt"):
+        with open("report.txt", "w") as file:
+            file.write("")  # Create an empty file
+
 def report_equip_i():
-    """Report an issue with equipment."""
-    equipment_name = input("Enter equipment name: ")
-    issue_description = input("Describe any issue or maintanence need: ")
-    
-    record = {
-        "equipment_name": equipment_name,
-        "issue_description": issue_description
-    }
+    try:
+        equipment_name = input("Enter equipment name: ")
+        issue_description = input("Describe the issue or maintenance need: ")
 
-    # Append to the equipment log
-    equipment_log.append({
-        "equipment_name": equipment_name,
-        "issue_description": issue_description
-    })
+        # Validate inputs
+        if not equipment_name or not issue_description:
+            print("Error: Equipment name and issue description cannot be empty.")
+            return
 
-    # Save the new issue to the report.txt file
-    with open("report.txt", "a") as file:
-        file.write("==== New Equipment Issue ====\n")
-        file.write(f"Equipment: {equipment_name}\n")
-        file.write(f"Issue: {issue_description}\n")
-        file.write(f"{'-' * 30}\n")
+        # Create a new record
+        record = {
+            "equipment_name": equipment_name,
+            "issue_description": issue_description
+        }
 
-    print(f"Issue reported for '{equipment_name}' successfully!\n")
-    print("")
+        # Append to in-memory log
+        equipment_log.append(record)
+
+        # Append the new issue to the file
+        with open("report.txt", "a") as file:
+            file.write("==== New Equipment Issue ====\n")
+            file.write(f"Equipment: {equipment_name}\n")
+            file.write(f"Issue: {issue_description}\n")
+            file.write(" \n")
+
+        print(f"Issue reported for '{equipment_name}' successfully!")
+    except Exception as e:
+        print(f"An error occurred while reporting the issue: {e}")
 
 # 1.2.10 查看设备问题
 def view_equip_i():
-    print("==== Equipment Issues Log ====")
+    try:
+        # Check if the file exists and read its contents
+        with open("report.txt", "r") as file:
+            lines = file.readlines()
 
-    # Open the report.txt file in write mode to overwrite with the complete log
-    with open("report.txt", "w") as file:
-        # Header for the file
-        file.write("==== Equipment Issues Log ====\n")
+        # Identify the latest report based on separators
+        latest_report = []
+        for line in reversed(lines):
+            latest_report.append(line)
+            if "==== New Equipment Issue ====" in line:
+                break
 
-        if not equipment_log:
-            no_issues_message = "No equipment issues reported."
-            print(no_issues_message)
-            file.write(no_issues_message + "\n")
+        if latest_report:
+            print("\n╔═══════════════════════════════╗")
+            print("║     Latest Equipment Log      ║")
+            print("╚═══════════════════════════════╝")
+            print("".join(reversed(latest_report)))  # Reverse to correct order
         else:
-            for issue in equipment_log:
-                # Create formatted output for each issue
-                issue_text = (
-                    f"Equipment: {issue['equipment_name']}\n"
-                    f"Issue: {issue['issue_description']}\n"
-                    f"{'-' * 30}\n"
-                )
+            print("No reports found in the file.")
+    except FileNotFoundError:
+        print("Error: The equipment log file (report.txt) does not exist.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
-                # Display issue in console
-                print(issue_text, end="")
-
-                # Save issue to the file
-                file.write(issue_text)
-
-    print("Equipment issues log has been saved to 'report.txt'.")
-    print("")
+if __name__ == "__main__":
+    initialize_file()
 
 
 # 1.2.11 厨师设置
