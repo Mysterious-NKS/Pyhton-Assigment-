@@ -435,7 +435,12 @@ def view_production():
 def report_equip_i():
     """Report an issue with equipment."""
     equipment_name = input("Enter equipment name: ")
-    issue_description = input("Describe the malfunction or maintenance need: ")
+    issue_description = input("Describe any issue or maintanence need: ")
+    
+    record = {
+        "equipment_name": equipment_name,
+        "issue_description": issue_description
+    }
 
     # Append to the equipment log
     equipment_log.append({
