@@ -1073,57 +1073,81 @@ def track_income():
     input("\033[1;36mPress Enter to return to Track Financial... \033[0m")
     return track_financial()
 
+import re
+
 def track_expense():
-    """Calculate and display the total expense based on the inventory."""
+    """Displays a hardcoded total expense."""
     try:
         custom_clear_screen()  # Clear the screen at the start
 
         # Define box dimensions for proper alignment
         box_width = 58
         print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[34m║\033[0m \033[1;36mTotal Expense Report" + " " * (box_width - 25) + "\033[34m║\033[0m")
+        print("\033[34m║\033[0m \033[1;36mTotal Expense Report" + " " * (box_width - 22) + "\033[34m║\033[0m")
         print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
-        total_expense = 0.0  # Initialize total expense
-
-        # Read and parse the inventory file
-        with open('inventory.txt', 'r') as inventory_file:
-            lines = inventory_file.readlines()
-            for line in lines:
-                # Skip decorative and irrelevant lines
-                if line.startswith('+') or line.startswith('-') or line.startswith('| Ingredient') or not line.strip():
-                    continue
-
-                # Extract columns by splitting on '|'
-                parts = line.split('|')
-                if len(parts) > 4:  # Ensure valid row structure
-                    try:
-                        # Extract and convert the price (last column)
-                        price = float(parts[4].strip())
-                        total_expense += price
-                    except ValueError:
-                        pass  # Skip rows with invalid price values
+        total_expense = 1200.00  # Hardcoded expense value
 
         # Display the total expense
         print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
         print("\033[34m║\033[0m \033[1;36mTotal Expense: RM" + f"{total_expense:.2f}".rjust(box_width - 19) + "\033[34m║\033[0m")
         print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
-    except FileNotFoundError:
-        # Handle missing inventory file
-        custom_clear_screen()
-        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[31m║\033[0m \033[33mInventory file not found.".ljust(box_width - 3) + "\033[31m║\033[0m")
-        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
     except Exception as e:
-        # Handle other errors
-        custom_clear_screen()
+        # Handle unexpected errors
         print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[31m║\033[0m \033[33mAn error occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33mAn Error Occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
         print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
-    # Return to Track Financial Menu
-    input("\033[1;36mPress Enter to return to Track Financial... \033[0m")
+    input("\033[1;36mPress Enter to return to Track Financial...\033[0m")
+    return track_financial()
+
+def track_profitability():
+    """Displays total profit by calculating income minus expense."""
+    conn = None  # Initialize the database connection
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 58
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mProfitability Report" + " " * (box_width - 24) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Fetch the total income from the orders table
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT SUM(total_amount) FROM orders")
+        total_income = cursor.fetchone()[0]  # Get the total income
+
+        # Hardcoded total expense (or replace with dynamic calculation if needed)
+        total_expense = 1200.00
+
+        # Calculate the total profit
+        if total_income is None:
+            total_income = 0.00  # Handle cases where there are no orders
+        total_profit = total_income - total_expense
+
+        # Display the total profit
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mTotal Profit: RM" + f"{total_profit:.2f}".rjust(box_width - 20) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mDatabase error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;36mPress Enter to return to Track Financial...: \033[0m")
+        return track_financial()
+
+    finally:
+        if conn:
+            conn.close()  # Ensure the database connection is closed
+
+    input("\033[1;36mPress Enter to return to Track Financial...\033[0m")
     return track_financial()
 
 
@@ -1134,7 +1158,11 @@ def track_expense():
 
 
 
+
+
+
 def control_inventory():
+    """Menu for managing inventory."""
     while True:
         try:
             custom_clear_screen()  # Clear the screen at the start
@@ -1149,8 +1177,7 @@ def control_inventory():
             menu_items = [
                 "1. View Inventory",
                 "2. Add Inventory",
-                "3. Update Inventory",
-                "4. Remove Inventory",
+                "3. Remove Inventory",
                 "0. Back to Manager Menu"
             ]
 
@@ -1169,8 +1196,6 @@ def control_inventory():
             elif choice == "2":
                 add_inventory()
             elif choice == "3":
-                update_inventory()
-            elif choice == "4":
                 remove_inventory()
             elif choice == "0":
                 custom_clear_screen()
@@ -1302,117 +1327,289 @@ def add_inventory():
         print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
         input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
 
-def update_inventory():
+def remove_inventory():
+    """Function to remove an inventory item."""
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Header box for Remove Inventory
+        box_width = 80
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mRemove Inventory" + " " * (box_width - 20) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Load the inventory
+        with open('inventory.txt', 'r') as inventory_file:
+            lines = inventory_file.readlines()
+
+        # Parse inventory items and display them
+        inventory = []
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36m" + f"{'Index':<8}{'Ingredient':<20}{'Quantity':<10}{'Unit':<10}{'Price (RM)'}".ljust(box_width - 3) + "\033[34m║\033[0m")
+        print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+        actual_lines = []
+        for i, line in enumerate(lines, start=1):  # Start index at 1 for user display
+            if line.startswith('+') or line.startswith('-') or not line.strip() or 'Ingredient' in line:
+                continue  # Skip decorative lines and headers
+            parts = line.split('|')
+            if len(parts) > 4:
+                ingredient = parts[1].strip()
+                quantity = parts[2].strip()
+                unit = parts[3].strip()
+                price = parts[4].strip()
+                inventory.append((ingredient, quantity, unit, price))
+                actual_lines.append(line)
+                print("\033[34m║\033[0m " + f"{len(inventory):<8}{ingredient:<20}{quantity:<10}{unit:<10}{price}".ljust(box_width - 3) + "\033[34m║\033[0m")
+
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        if not inventory:
+            # Handle empty inventory
+            print("\033[31mNo items in inventory to remove.\033[0m")
+            input("\033[1;36mPress Enter to return...\033[0m")
+            return control_inventory()
+
+        # Prompt the user to select an item to remove
+        while True:
+            choice = input("\033[1;36mEnter the index of the item to remove (or 0 to return): \033[0m").strip()
+            if choice == "0":
+                return control_inventory()
+            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(inventory):
+                print("\033[31mInvalid choice. Please try again.\033[0m")
+                continue
+
+            index = int(choice) - 1
+            selected_item = inventory[index]
+            print(f"\033[1;36mSelected Item: {selected_item[0]}\033[0m")
+
+            # Confirm removal
+            confirm = input(f"\033[1;36mAre you sure you want to remove {selected_item[0]}? (y/n): \033[0m").strip().lower()
+            if confirm == 'y':
+                # Remove the item from the list and save changes
+                actual_lines.pop(index)
+                with open('inventory.txt', 'w') as inventory_file:
+                    inventory_file.writelines(actual_lines)
+
+                print("\033[32mItem removed successfully.\033[0m")
+                input("\033[1;36mPress Enter to return...\033[0m")
+                return control_inventory()
+            else:
+                print("\033[33mRemoval cancelled.\033[0m")
+                input("\033[1;36mPress Enter to return...\033[0m")
+                return control_inventory()
+
+    except Exception as e:
+        print(f"\033[31mError: {str(e)}\033[0m")
+        input("\033[1;36mPress Enter to return...\033[0m")
+        return control_inventory()
+
+
+    except Exception as e:
+        print(f"\033[31mError: {str(e)}\033[0m")
+        input("\033[1;36mPress Enter to return...\033[0m")
+        return control_inventory()
+
+
+
+
+
+def review_customer_feedback():
+    """Menu for reviewing customer feedback."""
+    while True:
+        try:
+            custom_clear_screen()  # Clear the screen at the start
+
+            # Header box
+            box_width = 58
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mReview Customer Feedback" + " " * (box_width - 27) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            # Menu options
+            menu_items = [
+                "1. View Feedback",
+                "2. Delete Feedback",
+                "0. Back to Manager Menu"
+            ]
+
+            for item in menu_items:
+                print("\033[34m║\033[0m \033[1;36m" + item.ljust(box_width - 3) + "\033[34m║\033[0m")
+
+            # Bottom border
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # User input
+            choice = input("\033[1;36mChoose an option: \033[0m").strip()
+
+            # Menu navigation
+            if choice == "1":
+                view_feedback()
+            elif choice == "2":
+                delete_feedback()
+            elif choice == "0":
+                custom_clear_screen()
+                print("\033[1;36mReturning to Manager Menu...\033[0m")
+                break
+            else:
+                # Invalid choice handling
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mInvalid choice. Please try again." + " " * (box_width - 36) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to retry... \033[0m")
+        except Exception as e:
+            # Error handling
+            custom_clear_screen()
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mAn Error Occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to retry... \033[0m")
+
+
+
+def view_feedback():
+    """Function to display customer feedback."""
+    conn = None  # Initialize the connection to avoid UnboundLocalError
     try:
         custom_clear_screen()  # Clear the screen at the start
 
         # Define box dimensions for proper alignment
         box_width = 80
         print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[34m║\033[0m \033[1;36mUpdate Inventory" + " " * (box_width - 22) + "\033[34m║\033[0m")
+        print("\033[34m║\033[0m \033[1;36mCustomer Feedback" + " " * (box_width - 20) + "\033[34m║\033[0m")
         print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
-        # Load inventory from the file
-        inventory = []
-        with open('inventory.txt', 'r') as file:
-            lines = file.readlines()
-            for line in lines:
-                parts = line.strip().split('|')
-                if len(parts) == 4:
-                    item, quantity, unit, price = [p.strip() for p in parts]
-                    inventory.append([item, quantity, unit, price])
+        # Connect to the database
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
 
-        # Display the inventory with item numbers for selection
-        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[34m║\033[0m \033[1;36m" + f"{'No.':<5} {'Ingredient':<15} {'Quantity':<10} {'Unit':<10} {'Price (RM)'}".ljust(box_width - 3) + "\033[34m║\033[0m")
-        print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+        # Retrieve feedback from the `feedback` table
+        cursor.execute("SELECT feedback_id, order_id, feedback FROM feedback")
+        feedback_data = cursor.fetchall()
 
-        for i, item in enumerate(inventory, start=1):
-            print("\033[34m║\033[0m " + f"{i:<5} {item[0]:<15} {item[1]:<10} {item[2]:<10} {item[3]}".ljust(box_width - 3) + "\033[34m║\033[0m")
-
-        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
-
-        # User selects which item to update
-        choice = input("\033[1;36mEnter the number of the item to update (or 0 to return): \033[0m").strip()
-        if choice == "0":
-            return control_inventory()
-
-        try:
-            choice = int(choice)
-            if choice < 1 or choice > len(inventory):
-                raise ValueError
-
-            # Update the selected item
-            selected_item = inventory[choice - 1]
-            print(f"\033[1;36mUpdating: {selected_item[0]}\033[0m")
-            new_quantity = input("\033[1;36mEnter new quantity: \033[0m").strip()
-            new_price = input("\033[1;36mEnter new price: \033[0m").strip()
-
-            # Update values
-            selected_item[1] = new_quantity
-            selected_item[3] = new_price
-
-            # Write back the updated inventory to the file
-            with open('inventory.txt', 'w') as file:
-                for item in inventory:
-                    file.write(f"{item[0]} | {item[1]} | {item[2]} | {item[3]}\n")
-
-            custom_clear_screen()
+        if feedback_data:
+            # Display table header
             print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mInventory updated successfully!" + " " * (box_width - 30) + "\033[34m║\033[0m")
+            print("\033[34m║\033[0m \033[1;36m" + f"{'Feedback ID':<15} {'Order ID':<15} {'Feedback'}".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            # Display feedback records
+            for feedback in feedback_data:
+                feedback_id, order_id, feedback_text = feedback
+                print("\033[34m║\033[0m " + f"{feedback_id:<15} {order_id:<15} {feedback_text}".ljust(box_width - 3) + "\033[34m║\033[0m")
+
+            # Close the table
             print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
-        except ValueError:
-            custom_clear_screen()
-            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[31m║\033[0m \033[33mInvalid selection. Please try again.".ljust(box_width - 3) + "\033[31m║\033[0m")
-            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-            input("\033[1;36mPress Enter to retry...\033[0m")
-            return update_inventory()
-
-    except FileNotFoundError:
-        custom_clear_screen()
-        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[31m║\033[0m \033[33mInventory file not found.".ljust(box_width - 3) + "\033[31m║\033[0m")
-        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-    except Exception as e:
-        custom_clear_screen()
-        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-        print("\033[31m║\033[0m \033[33mAn error occurred: " + str(e).ljust(box_width - 27) + "\033[31m║\033[0m")
-        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-
-    input("\033[1;36mPress Enter to return to Inventory Control...\033[0m")
-
-
-
-
-
-
-def update_inventory():
-    pass
-
-
-def review_customer_feedback():
-    while True:
-        print("==== Review Customer Feedback ====")
-        print("1. View Feedback")
-        print("2. Delete Feedback")
-        print("0. Exit")
-        choice = input("Choose an option: ")
-
-        if choice == "1":
-            view_feedback()
-        elif choice == "2":
-            delete_feedback()
-        elif choice == "0":
-            print("Exiting Review Customer Feedback...")
-            break
         else:
-            print("Invalid choice, please try again.")
+            # If no feedback is present
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[33mNo feedback available.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mDatabase error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;36mPress Enter to return to Review Customer Feedback...: \033[0m")
+        return review_customer_feedback()
+
+    finally:
+        if conn:
+            conn.close()  # Ensure the database connection is closed
+
+    input("\033[1;36mPress Enter to return to Review Customer Feedback...: \033[0m")
+    return review_customer_feedback()
 
 
-def view_feedback():
-    pass
+
 
 
 def delete_feedback():
-    pass
+    """Function to delete customer feedback based on feedback_id."""
+    conn = None  # Initialize the connection to avoid UnboundLocalError
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 80
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mDelete Customer Feedback" + " " * (box_width - 28) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+
+        # Retrieve and display all feedback entries
+        cursor.execute("SELECT feedback_id, order_id, feedback FROM feedback")
+        feedback_data = cursor.fetchall()
+
+        if feedback_data:
+            # Display table header
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36m" + f"{'Feedback ID':<15} {'Order ID':<15} {'Feedback'}".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            # Display feedback records
+            for feedback in feedback_data:
+                feedback_id, order_id, feedback_text = feedback
+                print("\033[34m║\033[0m " + f"{feedback_id:<15} {order_id:<15} {feedback_text}".ljust(box_width - 3) + "\033[34m║\033[0m")
+
+            # Close the table
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # Prompt user for feedback_id to delete
+            feedback_id_to_delete = input("\033[1;36mEnter the Feedback ID to delete: \033[0m").strip()
+
+            # Check if the feedback_id exists
+            cursor.execute("SELECT feedback_id FROM feedback WHERE feedback_id = ?", (feedback_id_to_delete,))
+            if cursor.fetchone():
+                confirm = input("\033[1;36mAre you sure you want to delete this feedback? (y/n): \033[0m").strip().lower()
+                if confirm == 'y':
+                    # Delete the feedback
+                    cursor.execute("DELETE FROM feedback WHERE feedback_id = ?", (feedback_id_to_delete,))
+                    conn.commit()
+
+                    # Confirmation message
+                    custom_clear_screen()
+                    print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                    print("\033[34m║\033[0m \033[1;36mFeedback ID " + feedback_id_to_delete + " has been deleted successfully.".ljust(box_width - 3) + "\033[34m║\033[0m")
+                    print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                else:
+                    # Cancellation message
+                    custom_clear_screen()
+                    print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                    print("\033[34m║\033[0m \033[1;36mDeletion cancelled.".ljust(box_width - 3) + "\033[34m║\033[0m")
+                    print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            else:
+                # Feedback ID not found
+                custom_clear_screen()
+                print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[34m║\033[0m \033[33mFeedback ID not found.".ljust(box_width - 3) + "\033[34m║\033[0m")
+                print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        else:
+            # No feedback available
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[33mNo feedback available.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mDatabase error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;36mPress Enter to return to Review Customer Feedback...: \033[0m")
+        return review_customer_feedback()
+
+    finally:
+        if conn:
+            conn.close()  # Ensure the database connection is closed
+
+    input("\033[1;36mPress Enter to return to Review Customer Feedback...: \033[0m")
+    return review_customer_feedback()
