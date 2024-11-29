@@ -971,61 +971,440 @@ def update_order_status():
     return order_management()
 
 
-
-
-
-
-
-
-
 def track_financial():
     while True:
-        print("==== Track Financial ====")
-        print("1. View Inventory Report")
-        print("2. View Sales Report")
-        print("0. Exit")
-        choice = input("Choose an option: ")
+        try:
+            custom_clear_screen()  # Clear the screen at the start
 
-        if choice == "1":
-            view_inventory_report()
-        elif choice == "2":
-            view_sales_report()
-        elif choice == "0":
-            print("Exiting Track Financial...")
-            break
+            # Header box
+            box_width = 58
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mTrack Financial" + " " * (box_width - 18) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            # Menu options
+            menu_items = [
+                "1. Track Income",
+                "2. Track Expenses",
+                "3. Track Profitability",
+                "0. Back to Manager Menu"
+            ]
+
+            for item in menu_items:
+                print("\033[34m║\033[0m \033[1;36m" + item.ljust(box_width - 3) + "\033[34m║\033[0m")
+
+            # Bottom border
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # User input
+            choice = input("\033[1;36mChoose an option: \033[0m").strip()
+
+            # Menu navigation
+            if choice == "1":
+                track_income()
+            elif choice == "2":
+                track_expense()
+            elif choice == "3":
+                track_profitability()
+            elif choice == "0":
+                custom_clear_screen()
+                print("\033[1;36mReturning to Manager Menu...\033[0m")
+                break
+            else:
+                # Invalid choice handling
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mInvalid choice. Please try again.".ljust(box_width - 3) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to retry...\033[0m")
+        except Exception as e:
+            # Error handling
+            custom_clear_screen()
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mAn Error Occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to retry...\033[0m")
+
+def track_income():
+    """Function to calculate and display total income from all orders."""
+    conn = None  # Initialize the database connection
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 58
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mTotal Income Report" + " " * (box_width - 22) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Connect to the database
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+
+        # Calculate the total income by summing the `total_amount` column from the `orders` table
+        cursor.execute("SELECT SUM(total_amount) FROM orders")
+        total_income = cursor.fetchone()[0]  # Fetch the result
+
+        if total_income is not None:
+            # Display the total income
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mTotal Income: RM" + f"{total_income:.2f}".rjust(box_width - 19) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
         else:
-            print("Invalid choice, please try again.")
+            # Handle case where there are no orders
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[33mNo income data available.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mDatabase error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;36mPress Enter to return to Track Financial...: \033[0m")
+        return track_financial()
+
+    finally:
+        if conn:
+            conn.close()  # Ensure the database connection is closed
+
+    input("\033[1;36mPress Enter to return to Track Financial... \033[0m")
+    return track_financial()
+
+def track_expense():
+    """Calculate and display the total expense based on the inventory."""
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 58
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mTotal Expense Report" + " " * (box_width - 25) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        total_expense = 0.0  # Initialize total expense
+
+        # Read and parse the inventory file
+        with open('inventory.txt', 'r') as inventory_file:
+            lines = inventory_file.readlines()
+            for line in lines:
+                # Skip decorative and irrelevant lines
+                if line.startswith('+') or line.startswith('-') or line.startswith('| Ingredient') or not line.strip():
+                    continue
+
+                # Extract columns by splitting on '|'
+                parts = line.split('|')
+                if len(parts) > 4:  # Ensure valid row structure
+                    try:
+                        # Extract and convert the price (last column)
+                        price = float(parts[4].strip())
+                        total_expense += price
+                    except ValueError:
+                        pass  # Skip rows with invalid price values
+
+        # Display the total expense
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mTotal Expense: RM" + f"{total_expense:.2f}".rjust(box_width - 19) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except FileNotFoundError:
+        # Handle missing inventory file
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mInventory file not found.".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+    except Exception as e:
+        # Handle other errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mAn error occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    # Return to Track Financial Menu
+    input("\033[1;36mPress Enter to return to Track Financial... \033[0m")
+    return track_financial()
 
 
-def view_inventory_report():
-    pass
 
 
-def view_sales_report():
-    pass
+
+
+
 
 
 def control_inventory():
     while True:
-        print("==== Control Inventory ====")
-        print("1. Check Inventory")
-        print("2. Update Inventory")
-        print("0. Exit")
-        choice = input("Choose an option: ")
+        try:
+            custom_clear_screen()  # Clear the screen at the start
 
-        if choice == "1":
-            check_inv()
-        elif choice == "2":
-            update_inventory()
-        elif choice == "0":
-            print("Exiting Control Inventory...")
-            break
-        else:
-            print("Invalid choice, please try again.")
+            # Header box
+            box_width = 58
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mInventory Control" + " " * (box_width - 20) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            # Menu options
+            menu_items = [
+                "1. View Inventory",
+                "2. Add Inventory",
+                "3. Update Inventory",
+                "4. Remove Inventory",
+                "0. Back to Manager Menu"
+            ]
+
+            for item in menu_items:
+                print("\033[34m║\033[0m \033[1;36m" + item.ljust(box_width - 3) + "\033[34m║\033[0m")
+
+            # Bottom border
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # User input
+            choice = input("\033[1;36mChoose an option: \033[0m").strip()
+
+            # Menu navigation
+            if choice == "1":
+                view_inventory()
+            elif choice == "2":
+                add_inventory()
+            elif choice == "3":
+                update_inventory()
+            elif choice == "4":
+                remove_inventory()
+            elif choice == "0":
+                custom_clear_screen()
+                print("\033[1;36mReturning to Manager Menu...\033[0m")
+                break
+            else:
+                # Invalid choice handling
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mInvalid choice. Please try again." + " " * (box_width - 36) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to retry... \033[0m")
+        except Exception as e:
+            # Error handling
+            custom_clear_screen()
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mAn Error Occurred: " + str(e)[:36].ljust(36) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to retry... \033[0m")
 
 
-def check_inv():
-    pass
+
+def view_inventory():
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 80
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mCurrent Inventory" + " " * (box_width - 21) + "\033[34m║\033[0m")
+        print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+        # Display inventory headers
+        headers = f"{" "*20}{'Ingredient':<10} {'Quantity':<11} {'Unit':<20} {'Price (RM)'}"
+        print("\033[34m║\033[0m " + headers.ljust(box_width - 3) + "\033[34m║\033[0m")
+        print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+        # Open the inventory file
+        with open("inventory.txt", "r") as file:
+            lines = file.readlines()
+
+            # Skip the heading row from the file
+            inventory_data = [line.strip() for line in lines if "|" in line and not line.startswith("+")]
+
+            # Display inventory items
+            if inventory_data:
+                for line in inventory_data:
+                    # Split the line and align data
+                    parts = line.split('|')
+                    if len(parts) >= 4:
+                        ingredient = parts[0].strip()
+                        quantity = parts[1].strip()
+                        unit = parts[2].strip()
+                        price = parts[3].strip()
+                        row = f"{ingredient:<20} {quantity:<10} {unit:<10} {price:<10}"
+                        print("\033[34m║\033[0m " + row.ljust(box_width - 3) + "\033[34m║\033[0m")
+            else:
+                # No inventory available
+                print("\033[34m║\033[0m \033[33mNo inventory items available.".ljust(box_width - 3) + "\033[34m║\033[0m")
+
+        # Close the table
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except FileNotFoundError:
+        # If the inventory file is missing
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[33mInventory file not found. Please check the system.".ljust(box_width - 3) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    except Exception as e:
+        # Handle unexpected errors
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mAn error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    input("\033[1;36mPress Enter to return to Inventory Control... \033[0m")
+    return control_inventory()
+
+def add_inventory():
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 80
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mAdd New Inventory Item" + " " * (box_width - 26) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Input new item details
+        ingredient = input("\033[1;36mEnter the ingredient name: \033[0m").strip()
+        quantity = input("\033[1;36mEnter the quantity: \033[0m").strip()
+        unit = input("\033[1;36mEnter the unit amount and type(e.g., Kg, L, pcs): \033[0m").strip()
+        price = input("\033[1;36mEnter the price (RM): \033[0m").strip()
+
+        # Validation for numeric inputs
+        if not quantity.isdigit() or not price.isdigit():
+            custom_clear_screen()
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mInvalid input. Quantity and Price must be numeric.".ljust(box_width - 3) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+            return control_inventory()
+
+        # Write new item to the inventory file
+        with open("inventory.txt", "a") as file:
+            file.write(f"| {ingredient:<20} | {quantity:<10} | {unit:<20} | {price:<10} |\n")
+
+        # Success message
+        custom_clear_screen()
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mItem added successfully to the inventory.".ljust(box_width - 3) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;36mPress Enter to return to Inventory Control... \033[0m")
+
+    except FileNotFoundError:
+        # Handle missing inventory file
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mInventory file not found. Please check the system.".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+
+    except Exception as e:
+        # Handle unexpected errors
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mAn error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+        input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+
+    def update_inventory():
+        """Allows the manager to update the details of an existing inventory item."""
+        try:
+            custom_clear_screen()  # Clear the screen at the start
+
+            # Define box dimensions for proper alignment
+            box_width = 80
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mUpdate Inventory Item" + " " * (box_width - 25) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # Display the current inventory
+            with open("inventory.txt", "r") as file:
+                inventory = file.readlines()
+
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mCurrent Inventory:".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+            for i, line in enumerate(inventory, start=1):
+                if "|" in line:
+                    print("\033[34m║\033[0m \033[1;36m" + f"{i}. {line.strip()}".ljust(
+                        box_width - 3) + "\033[34m║\033[0m")
+
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+            # Prompt user to select an item to update
+            choice = input("\033[1;36mEnter the number of the item to update: \033[0m").strip()
+
+            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(inventory):
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mInvalid choice. Please enter a valid number.".ljust(
+                    box_width - 3) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+                return control_inventory()
+
+            item_index = int(choice) - 1
+            selected_item = inventory[item_index].strip()
+
+            # Parse the selected item
+            parts = [p.strip() for p in selected_item.split("|") if p.strip()]
+            if len(parts) < 4:
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mInvalid inventory format. Cannot update item.".ljust(
+                    box_width - 3) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+                return control_inventory()
+
+            ingredient, quantity, unit, price = parts
+
+            # Prompt user for updated details
+            new_quantity = input(
+                f"\033[1;36mEnter new quantity for {ingredient} (current: {quantity}): \033[0m").strip()
+            new_unit = input(f"\033[1;36mEnter new unit for {ingredient} (current: {unit}): \033[0m").strip()
+            new_price = input(f"\033[1;36mEnter new price for {ingredient} (current: {price}): \033[0m").strip()
+
+            # Validation
+            if not new_quantity.isdigit() or not new_price.isdigit():
+                custom_clear_screen()
+                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+                print("\033[31m║\033[0m \033[33mQuantity and Price must be numeric.".ljust(
+                    box_width - 3) + "\033[31m║\033[0m")
+                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+                return control_inventory()
+
+            # Update the selected item
+            updated_item = f"| {ingredient:<20} | {new_quantity:<10} | {new_unit:<20} | {new_price:<10} |\n"
+            inventory[item_index] = updated_item
+
+            # Write the updated inventory back to the file
+            with open("inventory.txt", "w") as file:
+                file.writelines(inventory)
+
+            # Success message
+            custom_clear_screen()
+            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[34m║\033[0m \033[1;36mItem updated successfully.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;36mPress Enter to return to Inventory Control... \033[0m")
+
+        except FileNotFoundError:
+            # Handle missing inventory file
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mInventory file not found. Please check the system.".ljust(
+                box_width - 3) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+
+        except Exception as e:
+            # Handle unexpected errors
+            custom_clear_screen()
+            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+            print("\033[31m║\033[0m \033[33mAn error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
+            print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+            input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+
+        return control_inventory()
 
 
 def update_inventory():
