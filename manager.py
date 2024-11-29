@@ -1302,109 +1302,89 @@ def add_inventory():
         print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
         input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
 
-    def update_inventory():
-        """Allows the manager to update the details of an existing inventory item."""
+def update_inventory():
+    try:
+        custom_clear_screen()  # Clear the screen at the start
+
+        # Define box dimensions for proper alignment
+        box_width = 80
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36mUpdate Inventory" + " " * (box_width - 22) + "\033[34m║\033[0m")
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # Load inventory from the file
+        inventory = []
+        with open('inventory.txt', 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                parts = line.strip().split('|')
+                if len(parts) == 4:
+                    item, quantity, unit, price = [p.strip() for p in parts]
+                    inventory.append([item, quantity, unit, price])
+
+        # Display the inventory with item numbers for selection
+        print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[34m║\033[0m \033[1;36m" + f"{'No.':<5} {'Ingredient':<15} {'Quantity':<10} {'Unit':<10} {'Price (RM)'}".ljust(box_width - 3) + "\033[34m║\033[0m")
+        print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
+
+        for i, item in enumerate(inventory, start=1):
+            print("\033[34m║\033[0m " + f"{i:<5} {item[0]:<15} {item[1]:<10} {item[2]:<10} {item[3]}".ljust(box_width - 3) + "\033[34m║\033[0m")
+
+        print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+        # User selects which item to update
+        choice = input("\033[1;36mEnter the number of the item to update (or 0 to return): \033[0m").strip()
+        if choice == "0":
+            return control_inventory()
+
         try:
-            custom_clear_screen()  # Clear the screen at the start
-
-            # Define box dimensions for proper alignment
-            box_width = 80
-            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mUpdate Inventory Item" + " " * (box_width - 25) + "\033[34m║\033[0m")
-            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
-
-            # Display the current inventory
-            with open("inventory.txt", "r") as file:
-                inventory = file.readlines()
-
-            print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mCurrent Inventory:".ljust(box_width - 3) + "\033[34m║\033[0m")
-            print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
-
-            for i, line in enumerate(inventory, start=1):
-                if "|" in line:
-                    print("\033[34m║\033[0m \033[1;36m" + f"{i}. {line.strip()}".ljust(
-                        box_width - 3) + "\033[34m║\033[0m")
-
-            print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
-
-            # Prompt user to select an item to update
-            choice = input("\033[1;36mEnter the number of the item to update: \033[0m").strip()
-
-            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(inventory):
-                custom_clear_screen()
-                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-                print("\033[31m║\033[0m \033[33mInvalid choice. Please enter a valid number.".ljust(
-                    box_width - 3) + "\033[31m║\033[0m")
-                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
-                return control_inventory()
-
-            item_index = int(choice) - 1
-            selected_item = inventory[item_index].strip()
-
-            # Parse the selected item
-            parts = [p.strip() for p in selected_item.split("|") if p.strip()]
-            if len(parts) < 4:
-                custom_clear_screen()
-                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-                print("\033[31m║\033[0m \033[33mInvalid inventory format. Cannot update item.".ljust(
-                    box_width - 3) + "\033[31m║\033[0m")
-                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
-                return control_inventory()
-
-            ingredient, quantity, unit, price = parts
-
-            # Prompt user for updated details
-            new_quantity = input(
-                f"\033[1;36mEnter new quantity for {ingredient} (current: {quantity}): \033[0m").strip()
-            new_unit = input(f"\033[1;36mEnter new unit for {ingredient} (current: {unit}): \033[0m").strip()
-            new_price = input(f"\033[1;36mEnter new price for {ingredient} (current: {price}): \033[0m").strip()
-
-            # Validation
-            if not new_quantity.isdigit() or not new_price.isdigit():
-                custom_clear_screen()
-                print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-                print("\033[31m║\033[0m \033[33mQuantity and Price must be numeric.".ljust(
-                    box_width - 3) + "\033[31m║\033[0m")
-                print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-                input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
-                return control_inventory()
+            choice = int(choice)
+            if choice < 1 or choice > len(inventory):
+                raise ValueError
 
             # Update the selected item
-            updated_item = f"| {ingredient:<20} | {new_quantity:<10} | {new_unit:<20} | {new_price:<10} |\n"
-            inventory[item_index] = updated_item
+            selected_item = inventory[choice - 1]
+            print(f"\033[1;36mUpdating: {selected_item[0]}\033[0m")
+            new_quantity = input("\033[1;36mEnter new quantity: \033[0m").strip()
+            new_price = input("\033[1;36mEnter new price: \033[0m").strip()
 
-            # Write the updated inventory back to the file
-            with open("inventory.txt", "w") as file:
-                file.writelines(inventory)
+            # Update values
+            selected_item[1] = new_quantity
+            selected_item[3] = new_price
 
-            # Success message
+            # Write back the updated inventory to the file
+            with open('inventory.txt', 'w') as file:
+                for item in inventory:
+                    file.write(f"{item[0]} | {item[1]} | {item[2]} | {item[3]}\n")
+
             custom_clear_screen()
             print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[34m║\033[0m \033[1;36mItem updated successfully.".ljust(box_width - 3) + "\033[34m║\033[0m")
+            print("\033[34m║\033[0m \033[1;36mInventory updated successfully!" + " " * (box_width - 30) + "\033[34m║\033[0m")
             print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
-            input("\033[1;36mPress Enter to return to Inventory Control... \033[0m")
-
-        except FileNotFoundError:
-            # Handle missing inventory file
-            print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[31m║\033[0m \033[33mInventory file not found. Please check the system.".ljust(
-                box_width - 3) + "\033[31m║\033[0m")
-            print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-            input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
-
-        except Exception as e:
-            # Handle unexpected errors
+        except ValueError:
             custom_clear_screen()
             print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
-            print("\033[31m║\033[0m \033[33mAn error occurred:".ljust(box_width - 3) + "\033[31m║\033[0m")
-            print("\033[31m║\033[0m \033[33m" + str(e).ljust(box_width - 3) + "\033[31m║\033[0m")
+            print("\033[31m║\033[0m \033[33mInvalid selection. Please try again.".ljust(box_width - 3) + "\033[31m║\033[0m")
             print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
-            input("\033[1;33mPress Enter to return to Inventory Control... \033[0m")
+            input("\033[1;36mPress Enter to retry...\033[0m")
+            return update_inventory()
 
-        return control_inventory()
+    except FileNotFoundError:
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mInventory file not found.".ljust(box_width - 3) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+    except Exception as e:
+        custom_clear_screen()
+        print("\033[31m╔" + "═" * (box_width - 2) + "╗\033[0m")
+        print("\033[31m║\033[0m \033[33mAn error occurred: " + str(e).ljust(box_width - 27) + "\033[31m║\033[0m")
+        print("\033[31m╚" + "═" * (box_width - 2) + "╝\033[0m")
+
+    input("\033[1;36mPress Enter to return to Inventory Control...\033[0m")
+
+
+
+
 
 
 def update_inventory():
