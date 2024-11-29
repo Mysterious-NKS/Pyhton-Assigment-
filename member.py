@@ -62,7 +62,7 @@ def order_menu(username):
             feedback(username)
         elif choice == '6': 
             print(f"{username} Goodbye!")
-            exit()
+            break
         else:
             print("Invalid choice, please try again.")
 
