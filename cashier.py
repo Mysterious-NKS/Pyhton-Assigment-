@@ -26,6 +26,7 @@ def cashier_login():
         else:
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
+
 #
 #
 #1.1 menu
@@ -59,6 +60,7 @@ def cashier_menu():
         else:
             print("Invalid choice, please try again.")
 
+
 #
 #
 #2.1
@@ -67,6 +69,7 @@ def cashier_display_menu():
     load_menu()
     menu = load_menu()
     display_menu(menu)
+
 
 #
 #
@@ -101,6 +104,7 @@ def display_orders():
         if conn:
             conn.close()
 
+# 3.2
 def update_order_status(order_id, new_status):
     try:
         conn = sqlite3.connect('users.db')
@@ -127,6 +131,7 @@ def update_order_status(order_id, new_status):
         if conn:
             conn.close()
 
+#3.3
 def change_order_status_menu():
     while True:
         clear_screen()
@@ -150,6 +155,7 @@ def change_order_status_menu():
             continue
         
         update_order_status(int(order_id), new_status)
+
 
 #
 #
@@ -184,6 +190,7 @@ def apply_discount_to_order(order_id, discount_percent):
         if conn:
             conn.close()
 
+#4.2
 def manage_discount_menu():
     while True:
         clear_screen()
@@ -217,6 +224,7 @@ def manage_discount_menu():
         else:
             print("Invalid choice. Please try again.")
 
+#4.3
 def restore_original_price(order_id):
     try:
         conn = sqlite3.connect('users.db')
@@ -248,6 +256,7 @@ def restore_original_price(order_id):
     finally:
         if conn:
             conn.close()
+
 
 #
 # 
@@ -305,6 +314,7 @@ def generate_receipt(order_id):
         if conn:
             conn.close()
 
+#5.2
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
     """Generate and save the receipt to a file."""
     try:
@@ -357,7 +367,7 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
         if conn:
             conn.close()
 
-# Example usage
+#5.3
 def generate_receipt_menu():
     while True:
         clear_screen()
@@ -408,6 +418,7 @@ def generate_sales_report():
         if conn:
             conn.close()
 
+#6.2
 def generate_product_popularity_report():
     try:
         conn = sqlite3.connect('users.db')
@@ -438,6 +449,7 @@ def generate_product_popularity_report():
         if conn:
             conn.close()
 
+#6.3
 def generate_report_menu():
     while True:
         clear_screen()
@@ -459,10 +471,3 @@ def generate_report_menu():
             break
         else:
             print("Invalid choice, please try again.")
-
-
-
-
-
-
-
