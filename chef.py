@@ -432,8 +432,6 @@ def view_production():
 
 # 1.2.9 报告设备问题
 import os
-
-# In-memory log for the current session
 equipment_log = []
 
 def initialize_file():
@@ -517,7 +515,7 @@ def chef_settings():
         print("6. Record Production           ")
         print("7. View production             ")
         print("8. Report Equipment Issue      ")
-        print("9. View Equipment Issues       ")
+        print("9. View Equipment Issue       ")
         print("0. Exit                        ")
         print("")
 
