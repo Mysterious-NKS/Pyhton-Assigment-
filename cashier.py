@@ -31,7 +31,6 @@ def cashier_login():
 #
 #1.1 menu
 def cashier_menu():
-    clear_screen()
     while True:
         print("\n╔══════════════════════════════════╗")
         print("║        Cashier Menu              ║")
@@ -42,7 +41,10 @@ def cashier_menu():
         print("4. Generate Receipt")
         print("5. Generate Sales Report")
         print("0. Exit")
+
+        print("")
         choice = input("Choose an option: ")
+        print("")
 
         if choice == "1":
             cashier_display_menu() #2.0
@@ -69,6 +71,8 @@ def cashier_display_menu():
     load_menu()
     menu = load_menu()
     display_menu(menu)
+
+
 
 
 #
@@ -120,6 +124,7 @@ def update_order_status(order_id, new_status):
         conn.commit()
         
         if cursor.rowcount > 0:
+            print("")
             print(f"Order ID {order_id} status updated to '{new_status}'.")
         else:
             print(f"No order found with ID {order_id}.")
@@ -134,7 +139,6 @@ def update_order_status(order_id, new_status):
 #3.3
 def change_order_status_menu():
     while True:
-        clear_screen()
         display_orders()
         
         print("\n╔══════════════════════════════════╗")
@@ -149,7 +153,7 @@ def change_order_status_menu():
             print("Please enter a valid numeric Order ID.")
             continue
         
-        new_status = input("Enter the new status ('completed', 'pending', 'cancelled'): ").strip()
+        new_status = input("Enter the new status ('completed', 'pending', 'cancelled' or press Enter to return): ").strip()
         if new_status.lower() not in ['completed', 'pending', 'cancelled']:
             print("Invalid status. Please enter 'completed', 'pending', or 'cancelled'.")
             continue
@@ -160,6 +164,49 @@ def change_order_status_menu():
 #
 #
 #4.1
+def manage_discount_menu():
+    while True:
+        print("\n╔══════════════════════════════════╗")
+        print("║         Manage Discount          ║")
+        print("╚══════════════════════════════════╝")
+        print("1. Apply Discount to Order")
+        print("2. Remove Discount from Order (Restore Original Price)")
+        print("0. Return to Cashier Menu")
+        print(" ")
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            clear_screen()
+            try:
+                display_orders()
+                print("")
+                order_id = int(input("Enter the Order ID to apply a discount: "))
+                discount_percent = float(input("Enter the discount percentage: "))
+                apply_discount_to_order(order_id, discount_percent)
+            except ValueError:
+                print("Invalid input. Please enter numeric values for Order ID and discount percentage.")
+                print("")
+        
+        elif choice == "2":
+            clear_screen()
+            try:
+                display_orders()
+                print("")
+                order_id = int(input("Enter the Order ID to remove the discount: "))
+                restore_original_price(order_id)
+                print("")
+            except ValueError:
+                print("Invalid input. Please enter a valid Order ID.")
+                print("")
+        
+        elif choice == "0":
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
+            print("")
+
+#4.2
 def apply_discount_to_order(order_id, discount_percent):
     try:
         conn = sqlite3.connect('users.db')
@@ -190,40 +237,6 @@ def apply_discount_to_order(order_id, discount_percent):
         if conn:
             conn.close()
 
-#4.2
-def manage_discount_menu():
-    while True:
-        clear_screen()
-        display_orders()
-        print("\n╔══════════════════════════════════╗")
-        print("║         Manage Discount          ║")
-        print("╚══════════════════════════════════╝")
-        print("1. Apply Discount to Order")
-        print("2. Remove Discount from Order (Restore Original Price)")
-        print("0. Return to Cashier Menu")
-        choice = input("Choose an option: ")
-
-        if choice == "1":
-            try:
-                order_id = int(input("Enter the Order ID to apply a discount: "))
-                discount_percent = float(input("Enter the discount percentage: "))
-                apply_discount_to_order(order_id, discount_percent)
-            except ValueError:
-                print("Invalid input. Please enter numeric values for Order ID and discount percentage.")
-        
-        elif choice == "2":
-            try:
-                order_id = int(input("Enter the Order ID to remove the discount: "))
-                restore_original_price(order_id)
-            except ValueError:
-                print("Invalid input. Please enter a valid Order ID.")
-        
-        elif choice == "0":
-            break
-        
-        else:
-            print("Invalid choice. Please try again.")
-
 #4.3
 def restore_original_price(order_id):
     try:
@@ -246,6 +259,7 @@ def restore_original_price(order_id):
             conn.commit()
             
             print(f"Discount removed for Order ID {order_id}.")
+
             print(f"Restored Total Amount: RM{original_total:.2f}")
         else:
             print(f"No items found for Order ID {order_id}.")
@@ -261,6 +275,31 @@ def restore_original_price(order_id):
 #
 # 
 # 5.1
+def generate_receipt_menu():
+    while True:
+        print("\n╔══════════════════════════════════╗")
+        print("║      Generate Receipt Menu       ║")
+        print("╚══════════════════════════════════╝")
+        display_orders()
+        print("")
+        order_id = input("Enter the Order ID to generate the receipt (or press 'enter' to quit): ")
+        if order_id.lower() == '':
+            print("Exiting receipt menu.")
+            break
+        try:
+            order_id = int(order_id)
+            generate_receipt(order_id)
+            save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
+            if save_choice == 'y':
+                filename = input("Enter the filename (default: receipt.txt): ").strip()
+                if not filename:
+                    filename = "receipt.txt"
+                generate_receipt_to_file(order_id, filename)
+        except ValueError:
+            print("Invalid input. Please enter a valid Order ID.")
+
+
+#5.2
 def generate_receipt(order_id):
     clear_screen()
     print("\n╔══════════════════════════════════╗")
@@ -291,7 +330,7 @@ def generate_receipt(order_id):
         order_id, total_amount, status, order_date, items = order
 
         # Print receipt details
-        print("\n=== Receipt ===")
+        print("\n===== Receipt =====")
         print("Thank you for your order!")
         print("-" * 30)
         print(f"Order ID: {order_id}")
@@ -307,6 +346,7 @@ def generate_receipt(order_id):
         print(f"Status: {status.capitalize()}")
         print("-" * 30)
         print("Please visit again!")
+        print("")
         
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
@@ -314,7 +354,8 @@ def generate_receipt(order_id):
         if conn:
             conn.close()
 
-#5.2
+
+#5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
     """Generate and save the receipt to a file."""
     try:
@@ -367,34 +408,35 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
         if conn:
             conn.close()
 
-#5.3
-def generate_receipt_menu():
-    while True:
-        clear_screen()
-        print("\n╔══════════════════════════════════╗")
-        print("║      Generate Receipt Menu       ║")
-        print("╚══════════════════════════════════╝")
-        display_orders()
-        order_id = input("Enter the Order ID to generate the receipt (or 'enter' to quit): ")
-        if order_id.lower() == '':
-            print("Exiting receipt menu.")
-            break
-        try:
-            order_id = int(order_id)
-            generate_receipt(order_id)
-            save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
-            if save_choice == 'y':
-                filename = input("Enter the filename (default: receipt.txt): ").strip()
-                if not filename:
-                    filename = "receipt.txt"
-                generate_receipt_to_file(order_id, filename)
-        except ValueError:
-            print("Invalid input. Please enter a valid Order ID.")
 
-
+#
 #
 #
 #6.1
+def generate_report_menu():
+    while True:
+        print("\n╔══════════════════════════════════╗")
+        print("║        Sales Report Menu         ║")
+        print("╚══════════════════════════════════╝")
+        print("1. Generate Sales Report")
+        print("2. Generate Product Popularity Report")
+        print("0. Exit")
+        
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            clear_screen()
+            generate_sales_report()
+        elif choice == '2':
+            clear_screen()
+            generate_product_popularity_report()
+        elif choice == '0':
+            print("Exiting report generation.")
+            break
+        else:
+            print("Invalid choice, please try again.")
+
+#6.2
 def generate_sales_report():
     try:
         conn = sqlite3.connect('users.db')
@@ -407,8 +449,10 @@ def generate_sales_report():
         total_sales = cursor.fetchone()[0]
         total_sales = total_sales if total_sales else 0.0
 
-        # Show the report
-        print("\n=== Sales Performance Report ===")
+        # Show the Sales Performance Report
+        print("\n╔══════════════════════════════════╗")
+        print("║     Sales Performance Report     ║")
+        print("╚══════════════════════════════════╝")
         print(f"Total Sales (Completed Orders): RM{total_sales:.2f}")
 
     except sqlite3.Error as e:
@@ -418,7 +462,7 @@ def generate_sales_report():
         if conn:
             conn.close()
 
-#6.2
+#6.3
 def generate_product_popularity_report():
     try:
         conn = sqlite3.connect('users.db')
@@ -433,8 +477,10 @@ def generate_product_popularity_report():
         ''')
         items = cursor.fetchall()
 
-        # Show the report
-        print("\n=== Product Popularity Report ===")
+        # Show the Product Popularity Report
+        print("\n╔══════════════════════════════════╗")
+        print("║     Product Popularity Report    ║")
+        print("╚══════════════════════════════════╝")
         if items:
             for item in items:
                 item_name, total_quantity = item
@@ -448,26 +494,3 @@ def generate_product_popularity_report():
     finally:
         if conn:
             conn.close()
-
-#6.3
-def generate_report_menu():
-    while True:
-        clear_screen()
-        print("\n╔══════════════════════════════════╗")
-        print("║        Sales Report Menu         ║")
-        print("╚══════════════════════════════════╝")
-        print("1. Generate Sales Report")
-        print("2. Generate Product Popularity Report")
-        print("0. Exit")
-        
-        choice = input("Choose an option: ")
-
-        if choice == '1':
-            generate_sales_report()
-        elif choice == '2':
-            generate_product_popularity_report()
-        elif choice == '0':
-            print("Exiting report generation.")
-            break
-        else:
-            print("Invalid choice, please try again.")
