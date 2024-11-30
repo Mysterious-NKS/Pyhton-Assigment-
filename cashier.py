@@ -330,7 +330,7 @@ def generate_receipt(order_id):
         order_id, total_amount, status, order_date, items = order
 
         # Print receipt details
-        print("\n===== Receipt =====")
+        print("\n======== Receipt ========")
         print("Thank you for your order!")
         print("-" * 30)
         print(f"Order ID: {order_id}")
