@@ -73,74 +73,12 @@ def cashier_display_menu():
     display_menu(menu)
 
 
-
-
 #
 #
 #3.1
-def display_orders():
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-        
-        # Fetch all orders
-        cursor.execute('SELECT order_id, user_id, total_amount, status, order_date FROM orders')
-        orders = cursor.fetchall()
-        
-        if orders:
-            print("\n==== Orders List ====")
-            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
-            print(f"| {'Order ID':<8} | {'User ID':<8} | {'Total (RM)':<13} | {'Status':<10} | {'Order Date':<18} |")
-            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
-            
-            for order in orders:
-                order_id, user_id, total_amount, status, order_date = order
-                print(f"| {order_id:<8} | {user_id:<8} | {total_amount:<13.2f} | {status:<10} | {order_date:<18} |")
-            
-            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
-        else:
-            print("\nNo orders found.")
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-    
-    finally:
-        if conn:
-            conn.close()
-
-# 3.2
-def update_order_status(order_id, new_status):
-    try:
-        conn = sqlite3.connect('users.db')
-        cursor = conn.cursor()
-        
-        # Update the order status
-        cursor.execute('''
-        UPDATE orders
-        SET status = ?
-        WHERE order_id = ?
-        ''', (new_status, order_id))
-        
-        conn.commit()
-        
-        if cursor.rowcount > 0:
-            print("")
-            print(f"Order ID {order_id} status updated to '{new_status}'.")
-        else:
-            print(f"No order found with ID {order_id}.")
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
-    
-    finally:
-        if conn:
-            conn.close()
-
-#3.3
 def change_order_status_menu():
     while True:
         display_orders()
-        
         print("\n╔══════════════════════════════════╗")
         print("║       Change Order Status        ║")
         print("╚══════════════════════════════════╝")
@@ -160,6 +98,64 @@ def change_order_status_menu():
         
         update_order_status(int(order_id), new_status)
 
+#3.2
+def display_orders():
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT order_id, user_id, total_amount, status, order_date FROM orders')
+        orders = cursor.fetchall()
+
+        if orders:
+            print("\n==== Orders List ====")
+            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
+            print(f"| {'Order ID':<8} | {'User ID':<8} | {'Total (RM)':<13} | {'Status':<10} | {'Order Date':<18} |")
+            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
+            
+            for order in orders:
+                order_id, user_id, total_amount, status, order_date = order
+                print(f"| {order_id:<8} | {user_id:<8} | {total_amount:<13.2f} | {status:<10} | {order_date:<18} |")
+            
+            print(f"+{'-'*10}+{'-'*10}+{'-'*15}+{'-'*12}+{'-'*20}+")
+        else:
+            print("\nNo orders found.")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
+#3.3
+def update_order_status(order_id, new_status):
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        # Update the order status
+        cursor.execute('''
+        UPDATE orders
+        SET status = ?
+        WHERE order_id = ?
+        ''', (new_status, order_id))
+
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            print("")
+            print(f"Order ID {order_id} status updated to '{new_status}'.")
+        else:
+            print(f"No order found with ID {order_id}.")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
 
 #
 #
@@ -173,6 +169,7 @@ def manage_discount_menu():
         print("2. Remove Discount from Order (Restore Original Price)")
         print("0. Return to Cashier Menu")
         print(" ")
+
         choice = input("Choose an option: ")
 
         if choice == "1":
@@ -186,7 +183,7 @@ def manage_discount_menu():
             except ValueError:
                 print("Invalid input. Please enter numeric values for Order ID and discount percentage.")
                 print("")
-        
+
         elif choice == "2":
             clear_screen()
             try:
@@ -198,10 +195,10 @@ def manage_discount_menu():
             except ValueError:
                 print("Invalid input. Please enter a valid Order ID.")
                 print("")
-        
+
         elif choice == "0":
             break
-        
+
         else:
             print("Invalid choice. Please try again.")
             print("")
@@ -257,7 +254,7 @@ def restore_original_price(order_id):
             # Update the total_amount in the orders table
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (original_total, order_id))
             conn.commit()
-            
+
             print(f"Discount removed for Order ID {order_id}.")
 
             print(f"Restored Total Amount: RM{original_total:.2f}")
@@ -305,7 +302,7 @@ def generate_receipt(order_id):
     print("\n╔══════════════════════════════════╗")
     print("║         Generate Receipt         ║")
     print("╚══════════════════════════════════╝")
-    
+
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
@@ -319,13 +316,13 @@ def generate_receipt(order_id):
         WHERE o.order_id = ?
         GROUP BY o.order_id
         ''', (order_id,))
-        
+
         order = cursor.fetchone()
-        
+
         if not order:
             print("Order not found.")
             return
-        
+
         # Unpack order details
         order_id, total_amount, status, order_date, items = order
 
@@ -347,7 +344,7 @@ def generate_receipt(order_id):
         print("-" * 30)
         print("Please visit again!")
         print("")
-        
+
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
     finally:
@@ -371,13 +368,13 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
         WHERE o.order_id = ?
         GROUP BY o.order_id
         ''', (order_id,))
-        
+
         order = cursor.fetchone()
-        
+
         if not order:
             print("Order not found.")
             return
-        
+
         # Unpack order details
         order_id, total_amount, status, order_date, items = order
 
@@ -399,9 +396,9 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
             file.write(f"Status: {status.capitalize()}\n")
             file.write("-" * 30 + "\n")
             file.write("Please visit again!\n")
-        
+
         print(f"Receipt saved to {filename}.")
-        
+
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
     finally:
