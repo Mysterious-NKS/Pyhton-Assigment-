@@ -103,7 +103,7 @@ food_inv = {
 
 # 1.2.2 添加菜品
 def add_recipe():
-    print("Please insert your recipe")
+    print("Insert the name of the food or drink to add")
     print("Press Enter without typing anything to finish.")
 
     while True:
