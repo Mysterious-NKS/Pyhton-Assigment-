@@ -1,3 +1,3 @@
 Ng Kin Shum | manager | 2024-11-02 11:42:48 | Commited embezzlement.
-test | member | 2024-11-29 04:09:52 | Multiple profanities in the feedback section
-testing2 | member | 2024-11-29 04:29:06 | This is probably a bot
+test | member | 2024-11-29 04:09:52 | Multiple profanities in the feedback section.
+testing2 | member | 2024-11-29 04:29:06 | This is probably a bot.
