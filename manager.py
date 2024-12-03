@@ -889,7 +889,6 @@ def update_order_status():
     conn = None  # Initialize the connection to avoid UnboundLocalError
     try:
         custom_clear_screen()  # Clear the screen at the start
-
         # Define box dimensions for proper alignment
         box_width = 80
         print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
@@ -913,12 +912,10 @@ def update_order_status():
             print("\033[34m╔" + "═" * (box_width - 2) + "╗\033[0m")
             print("\033[34m║\033[0m \033[1;36m" + f"{'Order ID':<15} {'Username':<20} {'Total Amount':<15} {'Status'}".ljust(box_width - 3) + "\033[34m║\033[0m")
             print("\033[34m╠" + "═" * (box_width - 2) + "╣\033[0m")
-
             # Display each pending order
             for order in orders:
                 order_id, username, total_amount, status = order
                 print("\033[34m║\033[0m " + f"{order_id:<15} {username:<20} RM{total_amount:<13.2f} {status}".ljust(box_width - 3) + "\033[34m║\033[0m")
-
             # Close the table
             print("\033[34m╚" + "═" * (box_width - 2) + "╝\033[0m")
 
@@ -1149,15 +1146,6 @@ def track_profitability():
 
     input("\033[1;36mPress Enter to return to Track Financial...\033[0m")
     return track_financial()
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1403,8 +1391,7 @@ def remove_inventory():
         print(f"\033[31mError: {str(e)}\033[0m")
         input("\033[1;36mPress Enter to return...\033[0m")
         return control_inventory()
-
-
+    
     except Exception as e:
         print(f"\033[31mError: {str(e)}\033[0m")
         input("\033[1;36mPress Enter to return...\033[0m")
