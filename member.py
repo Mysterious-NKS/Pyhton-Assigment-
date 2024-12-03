@@ -228,7 +228,6 @@ def checkout(username):
         
         print(f"\nTotal Amount: RM{total_amount}")
         
-        # 确认订单详情
         print("\nPlease confirm your order details:")
         print("1. Confirm and place order")
         print("2. Return to cart to modify")

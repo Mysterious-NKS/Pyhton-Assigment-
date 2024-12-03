@@ -1121,7 +1121,7 @@ def track_profitability():
         total_income = cursor.fetchone()[0]  # Get the total income
 
         # Hardcoded total expense (or replace with dynamic calculation if needed)
-        total_expense = 1200.00
+        total_expense = 538.00
 
         # Calculate the total profit
         if total_income is None:
