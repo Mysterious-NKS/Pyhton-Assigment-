@@ -295,7 +295,6 @@ def generate_receipt_menu():
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
 
-
 #5.2
 def generate_receipt(order_id):
     clear_screen()
@@ -351,7 +350,6 @@ def generate_receipt(order_id):
         if conn:
             conn.close()
 
-
 #5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
     """Generate and save the receipt to a file."""
@@ -406,7 +404,6 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
             conn.close()
 
 
-#
 #
 #
 #6.1
