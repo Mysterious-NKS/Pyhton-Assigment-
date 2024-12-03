@@ -1,6 +1,6 @@
 import sqlite3
 from database import load_users
-from member import clear_screen
+from main import clear_screen
 from member import display_menu
 from member import load_menu
 
