@@ -1,6 +1,5 @@
 import sqlite3
 from database import load_users
-from member import clear_screen
 from member import display_menu
 from member import load_menu
 
@@ -134,7 +133,6 @@ def update_order_status(order_id, new_status):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Update the order status
         cursor.execute('''
         UPDATE orders
         SET status = ?
@@ -209,16 +207,13 @@ def apply_discount_to_order(order_id, discount_percent):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Fetch the current total amount for the order
         cursor.execute('SELECT total_amount FROM orders WHERE order_id = ?', (order_id,))
         result = cursor.fetchone()
 
         if result:
             current_total = result[0]
-            # Calculate the discounted total
             new_total = current_total * (1 - discount_percent / 100)
             
-            # Update the total_amount in the database
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (new_total, order_id))
             conn.commit()
             
@@ -240,7 +235,6 @@ def restore_original_price(order_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Fetch the order items to calculate the original total
         cursor.execute('''
             SELECT SUM(price * quantity) 
             FROM order_items 
@@ -251,7 +245,6 @@ def restore_original_price(order_id):
         if result and result[0] is not None:
             original_total = result[0]
             
-            # Update the total_amount in the orders table
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (original_total, order_id))
             conn.commit()
 
@@ -295,7 +288,6 @@ def generate_receipt_menu():
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
 
-
 #5.2
 def generate_receipt(order_id):
     clear_screen()
@@ -307,7 +299,6 @@ def generate_receipt(order_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Fetch order details
         cursor.execute('''
         SELECT o.order_id, o.total_amount, o.status, o.order_date,
                GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ') || RM' || ROUND(oi.price, 2)) as items
@@ -323,10 +314,8 @@ def generate_receipt(order_id):
             print("Order not found.")
             return
 
-        # Unpack order details
         order_id, total_amount, status, order_date, items = order
 
-        # Print receipt details
         print("\n======== Receipt ========")
         print("Thank you for your order!")
         print("-" * 30)
@@ -351,7 +340,6 @@ def generate_receipt(order_id):
         if conn:
             conn.close()
 
-
 #5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
     """Generate and save the receipt to a file."""
@@ -359,7 +347,6 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Fetch order details
         cursor.execute('''
         SELECT o.order_id, o.total_amount, o.status, o.order_date,
                GROUP_CONCAT(oi.item_name || ' (x' || oi.quantity || ') || RM' || ROUND(oi.price, 2)) as items
@@ -375,10 +362,8 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
             print("Order not found.")
             return
 
-        # Unpack order details
         order_id, total_amount, status, order_date, items = order
 
-        # Write receipt to file
         with open(filename, 'w') as file:
             file.write("=== Receipt ===\n")
             file.write("Thank you for your order!\n")
@@ -406,7 +391,6 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
             conn.close()
 
 
-#
 #
 #
 #6.1
@@ -439,14 +423,12 @@ def generate_sales_report():
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Total sales report
         cursor.execute('''
             SELECT SUM(total_amount) FROM orders WHERE status = 'completed'
         ''')
         total_sales = cursor.fetchone()[0]
         total_sales = total_sales if total_sales else 0.0
 
-        # Show the Sales Performance Report
         print("\n╔══════════════════════════════════╗")
         print("║     Sales Performance Report     ║")
         print("╚══════════════════════════════════╝")
@@ -465,7 +447,6 @@ def generate_product_popularity_report():
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        # Product popularity report (most popular products by quantity ordered)
         cursor.execute('''
             SELECT item_name, SUM(quantity) AS total_quantity
             FROM order_items
@@ -474,7 +455,6 @@ def generate_product_popularity_report():
         ''')
         items = cursor.fetchall()
 
-        # Show the Product Popularity Report
         print("\n╔══════════════════════════════════╗")
         print("║     Product Popularity Report    ║")
         print("╚══════════════════════════════════╝")

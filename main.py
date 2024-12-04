@@ -83,7 +83,6 @@ def login():
 
 def main():
     while True:
-        clear_screen()
         print("\n╔══════════════════════════╗")
         print("║  LIANG Restaurant        ║")
         print("╠══════════════════════════╣")
