@@ -7,7 +7,9 @@ def clear_screen():
     os.system("cls")
 
 def chef_login():
-    print("\n==== Chef Login ====")
+    print("╔══════════════════╗")
+    print("║    Chef Login    ║")
+    print("╚══════════════════╝")
     while True:
         username = input("Please enter a username (type 'undo' to go back) ► ")
         if username.lower() == 'undo':
