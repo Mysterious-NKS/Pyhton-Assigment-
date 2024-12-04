@@ -73,7 +73,7 @@ def login():
             cashier_login()
         elif choice == '5':
             print("\n" + "*" * 40)
-            print("*  Thank you for using our system. Goodbye!  *")
+            print("*  Back to main page  *")
             print("*" * 40 + "\n")
             break
         else:

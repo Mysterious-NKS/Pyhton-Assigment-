@@ -179,7 +179,9 @@ def view_and_modify_cart():
         return
 
     while True:
-        print("\n=== SHOPPING CART ===")
+        print("\n╔══════════════════════════════════╗")
+        print("║          SHOPPING CART           ║")
+        print("╚══════════════════════════════════╝")
         total = 0
         for idx, item in enumerate(CART):
             print(f"{idx + 1}. {item['name']} - RM{item['price']} x {item['quantity']}")
@@ -216,8 +218,9 @@ def checkout(username):
         return
 
     try:
-        # 显示订单摘要
-        print("\n=== Order Summary ===")
+        print("\n╔══════════════════════════════════╗")
+        print("║          Order Summary           ║")
+        print("╚══════════════════════════════════╝")
         total_amount = 0
         print("\nItems in your cart:")
         for item in CART:
@@ -230,7 +233,7 @@ def checkout(username):
         
         print("\nPlease confirm your order details:")
         print("1. Confirm and place order")
-        print("2. Return to cart to modify")
+        print("2. Back to Member Menu")
         
         choice = input("\nYour choice (1-3): ")
         
@@ -286,7 +289,7 @@ def checkout(username):
                     conn.close()
                     
         elif choice == '2':
-            print("\nReturning to cart...")
+            print("\nReturning to menu...")
             return
         elif choice == '3':
             print("\nCheckout cancelled.")
@@ -305,8 +308,10 @@ def track_order_status(username):
     if CURRENT_ORDER_ID is None:
         print("No active order to track. Please make an order first.")
         return
-        
-    print("=== Order Tracking ===")
+    
+    print("\n╔══════════════════════════════════╗")
+    print("║          Order Tracking          ║")
+    print("╚══════════════════════════════════╝")    
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
@@ -350,7 +355,10 @@ def feedback(username):
         print("No active order to provide feedback. Please make an order first.")
         return
     
-    print("\n=== Feedback ===")
+    print("\n╔══════════════════════════════════╗")
+    print("║             Feedback             ║")
+    print("╚══════════════════════════════════╝")    
+
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
