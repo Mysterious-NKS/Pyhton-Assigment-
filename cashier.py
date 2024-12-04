@@ -1,8 +1,13 @@
 import sqlite3
+import os
 from database import load_users
 from member import display_menu
 from member import load_menu
 
+def clear_screen():
+    os.system("cls")
+
+    
 #1.0 login
 def cashier_login():
     clear_screen()
