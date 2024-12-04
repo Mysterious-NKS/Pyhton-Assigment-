@@ -7,7 +7,9 @@ def clear_screen():
     os.system("cls")
 
 def chef_login():
-    print("\n==== Chef Login ====")
+    print("╔══════════════════╗")
+    print("║    Chef Login    ║")
+    print("╚══════════════════╝")
     while True:
         username = input("Please enter a username (type 'undo' to go back) ► ")
         if username.lower() == 'undo':
@@ -103,7 +105,7 @@ food_inv = {
 
 # 1.2.2 添加菜品
 def add_recipe():
-    print("Please insert your recipe")
+    print("Insert the name of the food or drinks to add")
     print("Press Enter without typing anything to finish.")
 
     while True:
