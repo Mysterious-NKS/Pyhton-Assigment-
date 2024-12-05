@@ -2,13 +2,12 @@ Food:
 +--------+------------+---------------------------------------------------------------------------------+
 | Name   | Price (RM) | Recipe                                                                          |
 +--------+------------+---------------------------------------------------------------------------------+
-| Burger | 15         | Patty, burger bun, lettuce, ketchup                                             |
+| Burger | 20.0       | Patty, burger bun, lettuce, ketchup                                             |
 | Pizza  | 20         | Flour, mozzarella cheese, pepperoni, onions                                     |
 | Salad  | 10         | Sliced tomatoes, sliced avocado, sliced cucumber, mustard                       |
 | Sushi  | 25         | Rice, salmon fish, seaweeds                                                     |
 | Tacos  | 12         | Onions, chopped chicken, chili powder, lettuce, diced tomatoes, shredded cheese |
 | Pasta  | 18         | Fettuccine , grilled chicken, tomato sauce, meatballs, garnish                  |
-| 1      | 12.0       | 111111111111                                                                    |
 +--------+------------+---------------------------------------------------------------------------------+
 
 Drink:

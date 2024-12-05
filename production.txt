@@ -1,6 +1,6 @@
 ==== Production Log ====
-Dish: Salad
-Batch Number: A098765432
+Dish: Burger
+Batch Number: A123456789
 Quantity: 10
-Expiration Date: 2024-12-12
+Expiration Date: 2014-12-12
 ------------------------------
