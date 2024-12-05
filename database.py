@@ -90,7 +90,7 @@ def save_user(username, password, user_type):
     query = "INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)"
     params = (username, password, user_type)
     result = execute_query(query, params)
-    if result is not None:
+    if result is None:
         print("User information has been saved.")
     else:
         print("Failed to save user information.") 

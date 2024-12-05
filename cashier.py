@@ -1,7 +1,12 @@
 import sqlite3
+import os
 from database import load_users
 from member import display_menu
 from member import load_menu
+
+def clear_screen():
+    os.system("cls")
+
 
 #1.0 login
 def cashier_login():
@@ -84,6 +89,7 @@ def change_order_status_menu():
         order_id = input("Enter the Order ID to update (or press Enter to return): ").strip()
         
         if order_id == '':
+            print("Return To Cashier Menu...")
             break
         
         if not order_id.isdigit():
@@ -195,6 +201,7 @@ def manage_discount_menu():
                 print("")
 
         elif choice == "0":
+            print("Return To Cashier Menu...")
             break
 
         else:
@@ -274,7 +281,7 @@ def generate_receipt_menu():
         print("")
         order_id = input("Enter the Order ID to generate the receipt (or press 'enter' to quit): ")
         if order_id.lower() == '':
-            print("Exiting receipt menu.")
+            print("Return To Cashier Menu...")
             break
         try:
             order_id = int(order_id)
@@ -403,6 +410,7 @@ def generate_report_menu():
         print("2. Generate Product Popularity Report")
         print("0. Exit")
         
+        print("")
         choice = input("Choose an option: ")
 
         if choice == '1':
@@ -412,7 +420,7 @@ def generate_report_menu():
             clear_screen()
             generate_product_popularity_report()
         elif choice == '0':
-            print("Exiting report generation.")
+            print("Return To Cashier Menu...")
             break
         else:
             print("Invalid choice, please try again.")

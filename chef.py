@@ -159,7 +159,9 @@ def add_recipe():
 
 # 1.2.3 删除菜品
 def remove_recipe():
-    print("==== Delete Food and Drinks ====")
+    print("╔══════════════════════════════╗")
+    print("║    Delete Food and Drinks    ║")
+    print("╚══════════════════════════════╝")
     name_q = input("Enter the food or drink name to remove: ").strip()
     exit_choice = input("Do you want to proceed with deletion? (yes to proceed / no to cancel): ")
 
@@ -226,7 +228,9 @@ def update_menu():
 import textwrap
 
 def view_menu():
-    print("==== Menu ====")
+    print("╔══════════════╗")
+    print("║     Menu     ║")
+    print("╚══════════════╝")
 
     print("\nFood:")
     print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
@@ -239,20 +243,20 @@ def view_menu():
         for item in food_list:
             wrapped_name = textwrap.wrap(item['name'], width=20)
             wrapped_price = textwrap.wrap(f"{item['price']:.2f}", width=10)  # Price formatted to 2 decimal places
-            wrapped_recipe = textwrap.wrap(item['recipe'], width=50)
+            wrapped_recipe = textwrap.wrap(item['recipe'], width=60)
 
-            print(f"| {wrapped_name[0]:<20} | {wrapped_price[0]:<10} | {wrapped_recipe[0]:<50} |")
+            print(f"| {wrapped_name[0]:<20} | {wrapped_price[0]:<10} | {wrapped_recipe[0]:<58} |")
 
             for line in wrapped_name[1:]:
-                print(f"| {line:<20} | {'':<10} | {'':<50} |")
+                print(f"| {line:<20} | {'':<10} | {'':<58} |")
 
             for line in wrapped_price[1:]:
-                print(f"| {'':<20} | {line:<10} | {'':<50} |")
+                print(f"| {'':<20} | {line:<10} | {'':<58} |")
 
             for line in wrapped_recipe[1:]:
-                print(f"| {'':<20} | {'':<10} | {line:<50} |")
+                print(f"| {'':<20} | {'':<10} | {line:<58} |")
 
-    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
 
     print("\nDrink:")
     print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
@@ -286,7 +290,9 @@ def view_menu():
 def checking_inv():
     with open("inventory.txt", "w") as file:
         # Prompt user for choice
-        print("==== Inventory Check ====")
+        print("╔═══════════════════════╗")
+        print("║    Check Inventory    ║")
+        print("╚═══════════════════════╝")
         choice = input(
             "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
@@ -402,7 +408,9 @@ def rec_production():
 # 1.2.8 查看生产
 def view_production():
     """View and save the production log."""
-    print("==== Production Log ====")
+    print("╔═══════════════════════╗")
+    print("║    Production Log     ║")
+    print("╚═══════════════════════╝")
     # Open the production.txt file in write mode
     with open("production.txt", "w") as file:
         # Header for the file
@@ -507,7 +515,7 @@ if __name__ == "__main__":
 def chef_settings():
     clear_screen()
     while True:
-        print("\n╔═══════════════════════════════╗")
+        print("╔═══════════════════════════════╗")
         print("║         Chef Settings         ║")
         print("╚═══════════════════════════════╝")
         print("1. Add Food/Drink              ")
