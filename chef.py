@@ -25,7 +25,7 @@ def chef_login():
                 break
         else:
             print("Username or password is incorrect, or you are not a chef. Please try again.")
-            
+
 def save_menu_to_file(food_list, drink_list):
     with open('menu.txt', 'w') as file:
         # Set column widths based on maximum lengths for each column
@@ -146,11 +146,11 @@ def add_recipe():
             drink_list.append(new_recipe)
 
         print("\nAdded successfully!")
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-        print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<50} |")
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-        print(f"| {new_recipe['name']:<20} | {new_recipe['price']:<10.2f} | {new_recipe['recipe']:<50} |")
-        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
+        print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<58} |")
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
+        print(f"| {new_recipe['name']:<20} | {new_recipe['price']:<10.2f} | {new_recipe['recipe']:<58} |")
+        print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
         print("")
 
         save_menu_to_file(food_list, drink_list)  # Save the updated menu
@@ -180,6 +180,7 @@ def remove_recipe():
     print("")
 
 
+
 # 1.2.4 更新菜品
 import textwrap
 
@@ -190,13 +191,13 @@ def update_menu():
         for item in item_list:
             if item['name'] == update_txt:
                 print("\nCurrent menu item details:")
-                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-                print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<50} |")
-                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
+                print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<58} |")
+                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
 
                 # Display current details
-                print(f"| {item['name']:<20} | {item['price']:<10.2f} | {item['recipe']:<50} |")
-                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+                print(f"| {item['name']:<20} | {item['price']:<10.2f} | {item['recipe']:<58} |")
+                print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
 
                 new_name = input("\nEnter new name (press Enter to skip): ")
                 new_price = input("Enter new price (press Enter to skip): ")
@@ -228,9 +229,9 @@ def view_menu():
     print("==== Menu ====")
 
     print("\nFood:")
-    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
-    print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<50} |")
-    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+")
+    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
+    print(f"| {'Name':<20} | {'Price (RM)':<10} | {'Recipe':<58} |")
+    print(f"+{'-' * 22}+{'-' * 12}+{'-' * 60}+")
 
     if not food_list:
         print(f"| {'No food items available':<86} |")
