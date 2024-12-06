@@ -522,7 +522,7 @@ def chef_settings():
         print("2. Update Food/Drink           ")
         print("3. Delete Food/Drink           ")
         print("4. View Menu                   ")
-        print("5. Check Inventory             ")
+        print("5. View Inventory             ")
         print("6. Record Production           ")
         print("7. View production             ")
         print("8. Report Equipment Issue      ")
