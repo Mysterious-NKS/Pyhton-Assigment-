@@ -89,10 +89,12 @@ def change_order_status_menu():
         order_id = input("Enter the Order ID to update (or press Enter to return): ").strip()
         
         if order_id == '':
+            print("")
             print("Return to Cashier Menu...")
             break
         
         if not order_id.isdigit():
+            print("")
             print("Please enter a valid numeric Order ID.")
             continue
         
@@ -100,6 +102,7 @@ def change_order_status_menu():
         new_status = new_status.lower()
         
         if new_status not in ['completed', 'pending', 'cancelled']:
+            print("")
             print("Invalid status. Please enter 'completed', 'pending', or 'cancelled'.")
             continue
 
