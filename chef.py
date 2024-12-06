@@ -304,7 +304,7 @@ def checking_inv():
 
                 # Define header and specific ingredient info
                 header = (
-                    "==== Inventory Check ====\n"
+                    "==== Inventory List ====\n"
                     f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
                     f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
                     f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
