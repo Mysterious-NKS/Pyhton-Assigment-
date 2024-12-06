@@ -290,9 +290,9 @@ def view_menu():
 def checking_inv():
     with open("inventory.txt", "w") as file:
         # Prompt user for choice
-        print("╔═══════════════════════╗")
-        print("║    Check Inventory    ║")
-        print("╚═══════════════════════╝")
+        print("╔══════════════════════╗")
+        print("║    View Inventory    ║")
+        print("╚══════════════════════╝")
         choice = input(
             "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
@@ -304,7 +304,7 @@ def checking_inv():
 
                 # Define header and specific ingredient info
                 header = (
-                    "==== Inventory Check ====\n"
+                    "==== Inventory List ====\n"
                     f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
                     f"| {'Ingredient':<20} | {'Quantity':<10} | {'Unit':<50} |\n"
                     f"+{'-' * 22}+{'-' * 12}+{'-' * 52}+\n"
@@ -522,7 +522,7 @@ def chef_settings():
         print("2. Update Food/Drink           ")
         print("3. Delete Food/Drink           ")
         print("4. View Menu                   ")
-        print("5. Check Inventory             ")
+        print("5. View Inventory             ")
         print("6. Record Production           ")
         print("7. View production             ")
         print("8. Report Equipment Issue      ")
