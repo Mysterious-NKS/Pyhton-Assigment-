@@ -290,9 +290,9 @@ def view_menu():
 def checking_inv():
     with open("inventory.txt", "w") as file:
         # Prompt user for choice
-        print("╔═══════════════════════╗")
-        print("║    Check Inventory    ║")
-        print("╚═══════════════════════╝")
+        print("╔══════════════════════╗")
+        print("║    View Inventory    ║")
+        print("╚══════════════════════╝")
         choice = input(
             "Do you want to check a specific ingredient or display the whole list? (enter 'specific' or 'all'): ").strip()
 
