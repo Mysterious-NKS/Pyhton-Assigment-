@@ -7,7 +7,6 @@ from member import load_menu
 def clear_screen():
     os.system("cls")
 
-
 #1.0 login
 def cashier_login():
     clear_screen()
@@ -24,6 +23,7 @@ def cashier_login():
         user_dict = {user[0]: user for user in users}
         user = user_dict.get(username)
         if user and user[1] == password and user[2] == 'cashier':
+            print("")
             print("Login successful!")
             cashier_menu()
             break
@@ -89,7 +89,7 @@ def change_order_status_menu():
         order_id = input("Enter the Order ID to update (or press Enter to return): ").strip()
         
         if order_id == '':
-            print("Return To Cashier Menu...")
+            print("Return to Cashier Menu...")
             break
         
         if not order_id.isdigit():
@@ -97,11 +97,14 @@ def change_order_status_menu():
             continue
         
         new_status = input("Enter the new status ('completed', 'pending', 'cancelled' or press Enter to return): ").strip()
-        if new_status.lower() not in ['completed', 'pending', 'cancelled']:
+        new_status = new_status.lower()
+        
+        if new_status not in ['completed', 'pending', 'cancelled']:
             print("Invalid status. Please enter 'completed', 'pending', or 'cancelled'.")
             continue
-        
+
         update_order_status(int(order_id), new_status)
+
 
 #3.2
 def display_orders():
@@ -201,7 +204,7 @@ def manage_discount_menu():
                 print("")
 
         elif choice == "0":
-            print("Return To Cashier Menu...")
+            print("Return to Cashier Menu...")
             break
 
         else:
@@ -224,6 +227,7 @@ def apply_discount_to_order(order_id, discount_percent):
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (new_total, order_id))
             conn.commit()
             
+            print("")
             print(f"Discount of {discount_percent}% applied to Order ID {order_id}.")
             print(f"Updated Total Amount: RM{new_total:.2f}")
         else:
@@ -255,8 +259,8 @@ def restore_original_price(order_id):
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (original_total, order_id))
             conn.commit()
 
+            print("")
             print(f"Discount removed for Order ID {order_id}.")
-
             print(f"Restored Total Amount: RM{original_total:.2f}")
         else:
             print(f"No items found for Order ID {order_id}.")
@@ -281,7 +285,7 @@ def generate_receipt_menu():
         print("")
         order_id = input("Enter the Order ID to generate the receipt (or press 'enter' to quit): ")
         if order_id.lower() == '':
-            print("Return To Cashier Menu...")
+            print("Return to Cashier Menu...")
             break
         try:
             order_id = int(order_id)
@@ -297,7 +301,6 @@ def generate_receipt_menu():
 
 #5.2
 def generate_receipt(order_id):
-    clear_screen()
     print("\n╔══════════════════════════════════╗")
     print("║         Generate Receipt         ║")
     print("╚══════════════════════════════════╝")
@@ -389,6 +392,7 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
             file.write("-" * 30 + "\n")
             file.write("Please visit again!\n")
 
+        print("")
         print(f"Receipt saved to {filename}.")
 
     except sqlite3.Error as e:
@@ -420,7 +424,7 @@ def generate_report_menu():
             clear_screen()
             generate_product_popularity_report()
         elif choice == '0':
-            print("Return To Cashier Menu...")
+            print("Return to Cashier Menu...")
             break
         else:
             print("Invalid choice, please try again.")
