@@ -48,7 +48,7 @@ def order_menu(username):
         print("3. checkout")
         print("4. track order status")
         print("5. provide feedback")
-        print("6. Exit")
+        print("6. Back")
         choice = input("\nPlease select an action (1-6) ► ")
         if choice == '1':
             browse_menu()
