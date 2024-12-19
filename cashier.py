@@ -139,7 +139,7 @@ def display_orders():
 
     finally:
         if conn:
-            conn.close()
+            conn.close() # Ensure the database connection is closed
 
 #3.3
 def update_order_status(order_id, new_status):
@@ -169,6 +169,7 @@ def update_order_status(order_id, new_status):
 
 #3.4
 def order_exists(order_id):
+    """Check if an order exists in the database."""
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
@@ -277,7 +278,7 @@ def apply_discount_to_order(order_id, discount_percent):
     except sqlite3.Error as e:
         print(f"An error occurred while applying the discount: {e}")
     
-    finally:
+    finally: # Safely close the connection if it was opened
         if conn:
             conn.close()
 
