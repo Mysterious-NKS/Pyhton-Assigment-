@@ -14,6 +14,7 @@ def cashier_login():
     print("║        Cashier Login             ║")
     print("╚══════════════════════════════════╝")
     while True:
+        print("")
         username = input("Please enter a username (press enter to undo) ► ")
         if username.lower() == '':
             return
@@ -28,6 +29,7 @@ def cashier_login():
             cashier_menu()
             break
         else:
+            print("")
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
 
