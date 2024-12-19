@@ -288,7 +288,8 @@ def restore_original_price(order_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        cursor.execute('''
+        # Get the original total based on `order_items`
+        cursor.execute(''' 
             SELECT SUM(price * quantity) 
             FROM order_items 
             WHERE order_id = ?
@@ -298,7 +299,8 @@ def restore_original_price(order_id):
         if result and result[0] is not None:
             original_total = result[0]
 
-            cursor.execute('''
+            # Check the current `total_amount` in the `orders` table
+            cursor.execute(''' 
                 SELECT total_amount 
                 FROM orders 
                 WHERE order_id = ?
@@ -312,6 +314,7 @@ def restore_original_price(order_id):
 
             current_total = order_result[0]
 
+            # Compare the current total with the original total
             if abs(current_total - original_total) < 0.01:  
                 print("")
                 print(f"Order ID {order_id} has not been discounted.")
