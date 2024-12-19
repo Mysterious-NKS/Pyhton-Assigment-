@@ -349,19 +349,22 @@ def generate_receipt_menu():
         try:
             order_id = int(order_id)
 
+
             if not order_exists(order_id):
                 print(f"\nOrder ID {order_id} not found. Please try again.")
                 continue
 
-            generate_receipt(order_id)
-            save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
-            if save_choice == 'y':
-                filename = input("Enter the filename (default: receipt.txt): ").strip()
-                if not filename:
-                    filename = "receipt.txt"
-                generate_receipt_to_file(order_id, filename)
+            if generate_receipt(order_id):  
+                save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
+                if save_choice == 'y':
+                    filename = input("Enter the filename (default: receipt.txt): ").strip()
+                    if not filename:
+                        filename = "receipt.txt"
+                    generate_receipt_to_file(order_id, filename)
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
+
+
 
 #5.2
 def generate_receipt(order_id):
@@ -386,9 +389,13 @@ def generate_receipt(order_id):
 
         if not order:
             print(f"Order ID {order_id} not found.")
-            return
+            return False  
 
         order_id, total_amount, status, order_date, items = order
+
+        if status == "pending":
+            print("\nCannot generate a receipt for orders with 'pending' status.")
+            return False  
 
         print("\n======== Receipt ========")
         print("Thank you for your order!")
@@ -407,16 +414,20 @@ def generate_receipt(order_id):
         print("-" * 30)
         print("Please visit again!")
         print("")
+        return True  
 
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
+        return False  
+
     finally:
         if conn:
             conn.close()
 
+
+
 #5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
-    """Generate and save the receipt to a file."""
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
