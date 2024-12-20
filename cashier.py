@@ -218,7 +218,7 @@ def manage_discount_menu():
                 apply_discount_to_order(order_id, discount_percent)
             except ValueError:
                 print("")
-                print("Invalid input. Please enter numeric values for Order ID and discount percentage.")
+                print("Invalid input. Please enter numeric values for Order ID.")
                 print("")
 
         elif choice == "2":
