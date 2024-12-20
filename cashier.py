@@ -355,7 +355,6 @@ def generate_receipt_menu():
         try:
             order_id = int(order_id)
 
-
             if not order_exists(order_id):
                 print(f"\nOrder ID {order_id} not found. Please try again.")
                 continue
@@ -366,9 +365,12 @@ def generate_receipt_menu():
                     filename = input("Enter the filename (default: receipt.txt): ").strip()
                     if not filename:
                         filename = "receipt.txt"
+                    elif not filename.endswith('.txt'):
+                        filename += ".txt"  # Automatically append .txt if not provided
                     generate_receipt_to_file(order_id, filename)
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
+
 
 #5.2
 def generate_receipt(order_id):
