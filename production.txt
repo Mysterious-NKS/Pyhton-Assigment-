@@ -1,6 +1,2 @@
 ==== Production Log ====
-Dish: Burger
-Batch Number: A123456789
-Quantity: 10
-Expiration Date: 2014-12-12
-------------------------------
+No production records available.

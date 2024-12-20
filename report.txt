@@ -2,7 +2,6 @@
 Equipment: Spoon
 Issue: Broke
  
-==== New Equipment Issue ====
-Equipment: Kitchen knife
-Issue: Burned
+
  
+
