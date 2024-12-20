@@ -48,7 +48,7 @@ def order_menu(username):
         print("3. checkout")
         print("4. track order status")
         print("5. provide feedback")
-        print("6. Exit")
+        print("6. Back")
         choice = input("\nPlease select an action (1-6) ► ")
         if choice == '1':
             browse_menu()
@@ -81,6 +81,7 @@ def load_menu():
 
 # 1.1.3 登入后看菜单
 def display_menu(menu):
+    clear_screen()
     print("\n╔══════════════════════════════════╗")
     print("║            MENU                  ║")
     print("╚══════════════════════════════════╝")
@@ -235,7 +236,7 @@ def checkout(username):
         print("1. Confirm and place order")
         print("2. Back to Member Menu")
         
-        choice = input("\nYour choice (1-3): ")
+        choice = input("\nYour choice (1-2): ")
         
         if choice == '1':
             try:

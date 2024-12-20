@@ -14,6 +14,7 @@ def cashier_login():
     print("║        Cashier Login             ║")
     print("╚══════════════════════════════════╝")
     while True:
+        print("")
         username = input("Please enter a username (press enter to undo) ► ")
         if username.lower() == '':
             return
@@ -28,6 +29,7 @@ def cashier_login():
             cashier_menu()
             break
         else:
+            print("")
             print("Username or password is incorrect, or you are not a cashier. Please try again.")
 
 
@@ -72,8 +74,8 @@ def cashier_menu():
 #2.1
 def cashier_display_menu():
     clear_screen()
-    load_menu()
-    menu = load_menu()
+    load_menu() #retrieve the menu data
+    menu = load_menu() #load the menu data into a variable
     display_menu(menu)
 
 
@@ -89,22 +91,25 @@ def change_order_status_menu():
         order_id = input("Enter the Order ID to update (or press Enter to return): ").strip()
         
         if order_id == '':
-            print("Return to Cashier Menu...")
+            print("\nReturning to Cashier Menu...")
             break
         
         if not order_id.isdigit():
-            print("Please enter a valid numeric Order ID.")
+            print("\nPlease enter a valid numeric Order ID.")
             continue
-        
+
+        if not order_exists(int(order_id)):
+            print(f"\nOrder ID {order_id} not found. Please try again.")
+            continue
+
         new_status = input("Enter the new status ('completed', 'pending', 'cancelled' or press Enter to return): ").strip()
         new_status = new_status.lower()
         
         if new_status not in ['completed', 'pending', 'cancelled']:
-            print("Invalid status. Please enter 'completed', 'pending', or 'cancelled'.")
+            print("\nInvalid status. Please enter 'completed', 'pending', or 'cancelled'.")
             continue
 
         update_order_status(int(order_id), new_status)
-
 
 #3.2
 def display_orders():
@@ -134,7 +139,7 @@ def display_orders():
 
     finally:
         if conn:
-            conn.close()
+            conn.close() # Ensure the database connection is closed
 
 #3.3
 def update_order_status(order_id, new_status):
@@ -151,13 +156,32 @@ def update_order_status(order_id, new_status):
         conn.commit()
 
         if cursor.rowcount > 0:
-            print("")
-            print(f"Order ID {order_id} status updated to '{new_status}'.")
+            print(f"\nOrder ID {order_id} status updated to '{new_status}'.")
         else:
-            print(f"No order found with ID {order_id}.")
+            print(f"\nOrder ID {order_id} not found.")  
 
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
+#3.4
+def order_exists(order_id):
+    """Check if an order exists in the database."""
+    try:
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT 1 FROM orders WHERE order_id = ?', (order_id,))
+        result = cursor.fetchone()
+
+        return result is not None
+
+    except sqlite3.Error as e:
+        print(f"An error occurred while checking the order: {e}")
+        return False
 
     finally:
         if conn:
@@ -185,10 +209,16 @@ def manage_discount_menu():
                 display_orders()
                 print("")
                 order_id = int(input("Enter the Order ID to apply a discount: "))
-                discount_percent = float(input("Enter the discount percentage: "))
+
+                if not order_exists(order_id):
+                    print(f"\nOrder ID {order_id} not found. Please try again.")
+                    continue
+
+                discount_percent = float(input("Enter the discount percentage (1-100): "))
                 apply_discount_to_order(order_id, discount_percent)
             except ValueError:
-                print("Invalid input. Please enter numeric values for Order ID and discount percentage.")
+                print("")
+                print("Invalid input. Please enter numeric values for Order ID.")
                 print("")
 
         elif choice == "2":
@@ -197,6 +227,11 @@ def manage_discount_menu():
                 display_orders()
                 print("")
                 order_id = int(input("Enter the Order ID to remove the discount: "))
+
+                if not order_exists(order_id):
+                    print(f"\nOrder ID {order_id} not found. Please try again.")
+                    continue
+
                 restore_original_price(order_id)
                 print("")
             except ValueError:
@@ -213,7 +248,13 @@ def manage_discount_menu():
 
 #4.2
 def apply_discount_to_order(order_id, discount_percent):
+    conn = None  
     try:
+        if discount_percent < 1 or discount_percent > 100:
+            print("")
+            print("Discount percentage must be between 1 and 100.")
+            return
+
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
@@ -227,16 +268,17 @@ def apply_discount_to_order(order_id, discount_percent):
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (new_total, order_id))
             conn.commit()
             
-            print("")
+            print("\n")
             print(f"Discount of {discount_percent}% applied to Order ID {order_id}.")
             print(f"Updated Total Amount: RM{new_total:.2f}")
         else:
+            print("\n")
             print(f"Order ID {order_id} not found.")
     
     except sqlite3.Error as e:
         print(f"An error occurred while applying the discount: {e}")
     
-    finally:
+    finally: # Safely close the connection if it was opened
         if conn:
             conn.close()
 
@@ -246,7 +288,8 @@ def restore_original_price(order_id):
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
 
-        cursor.execute('''
+        # Get the original total based on `order_items`
+        cursor.execute(''' 
             SELECT SUM(price * quantity) 
             FROM order_items 
             WHERE order_id = ?
@@ -255,7 +298,28 @@ def restore_original_price(order_id):
 
         if result and result[0] is not None:
             original_total = result[0]
-            
+
+            # Check the current `total_amount` in the `orders` table
+            cursor.execute(''' 
+                SELECT total_amount 
+                FROM orders 
+                WHERE order_id = ?
+            ''', (order_id,))
+            order_result = cursor.fetchone()
+
+            if not order_result:
+                print("")
+                print(f"Order ID {order_id} not found.")
+                return
+
+            current_total = order_result[0]
+
+            # Compare the current total with the original total
+            if abs(current_total - original_total) < 0.01:  
+                print("")
+                print(f"Order ID {order_id} has not been discounted.")
+                return
+
             cursor.execute('UPDATE orders SET total_amount = ? WHERE order_id = ?', (original_total, order_id))
             conn.commit()
 
@@ -263,7 +327,8 @@ def restore_original_price(order_id):
             print(f"Discount removed for Order ID {order_id}.")
             print(f"Restored Total Amount: RM{original_total:.2f}")
         else:
-            print(f"No items found for Order ID {order_id}.")
+            print("")
+            print(f"Order ID {order_id} not found.")
     
     except sqlite3.Error as e:
         print(f"An error occurred while restoring the original price: {e}")
@@ -289,13 +354,19 @@ def generate_receipt_menu():
             break
         try:
             order_id = int(order_id)
-            generate_receipt(order_id)
-            save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
-            if save_choice == 'y':
-                filename = input("Enter the filename (default: receipt.txt): ").strip()
-                if not filename:
-                    filename = "receipt.txt"
-                generate_receipt_to_file(order_id, filename)
+
+
+            if not order_exists(order_id):
+                print(f"\nOrder ID {order_id} not found. Please try again.")
+                continue
+
+            if generate_receipt(order_id):  
+                save_choice = input("Would you like to save the receipt to a file? (y/n): ").strip().lower()
+                if save_choice == 'y':
+                    filename = input("Enter the filename (default: receipt.txt): ").strip()
+                    if not filename:
+                        filename = "receipt.txt"
+                    generate_receipt_to_file(order_id, filename)
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
 
@@ -321,10 +392,14 @@ def generate_receipt(order_id):
         order = cursor.fetchone()
 
         if not order:
-            print("Order not found.")
-            return
+            print(f"Order ID {order_id} not found.")
+            return False  
 
         order_id, total_amount, status, order_date, items = order
+
+        if status == "pending":
+            print("\nCannot generate a receipt for orders with 'pending' status.")
+            return False  
 
         print("\n======== Receipt ========")
         print("Thank you for your order!")
@@ -343,16 +418,18 @@ def generate_receipt(order_id):
         print("-" * 30)
         print("Please visit again!")
         print("")
+        return True  
 
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
+        return False  
+
     finally:
         if conn:
             conn.close()
 
 #5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
-    """Generate and save the receipt to a file."""
     try:
         conn = sqlite3.connect('users.db')
         cursor = conn.cursor()
@@ -397,6 +474,7 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
 
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
+
     finally:
         if conn:
             conn.close()
