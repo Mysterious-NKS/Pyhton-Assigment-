@@ -74,8 +74,8 @@ def cashier_menu():
 #2.1
 def cashier_display_menu():
     clear_screen()
-    load_menu()
-    menu = load_menu()
+    load_menu() #retrieve the menu data
+    menu = load_menu() #load the menu data into a variable
     display_menu(menu)
 
 
@@ -370,8 +370,6 @@ def generate_receipt_menu():
         except ValueError:
             print("Invalid input. Please enter a valid Order ID.")
 
-
-
 #5.2
 def generate_receipt(order_id):
     print("\n╔══════════════════════════════════╗")
@@ -430,8 +428,6 @@ def generate_receipt(order_id):
         if conn:
             conn.close()
 
-
-
 #5.3
 def generate_receipt_to_file(order_id, filename='receipt.txt'):
     try:
@@ -478,6 +474,7 @@ def generate_receipt_to_file(order_id, filename='receipt.txt'):
 
     except sqlite3.Error as e:
         print(f"Error generating receipt: {e}")
+
     finally:
         if conn:
             conn.close()
